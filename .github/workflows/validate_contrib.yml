@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'contrib/**'  # Exécuter uniquement si des fichiers dans le dossier contrib sont modifiés
   pull_request:
     branches:
       - main
+    paths:
+      - 'contrib/**'  # Exécuter uniquement si des fichiers dans le dossier contrib sont modifiés
 
 jobs:
   validate_contribs:
@@ -23,3 +27,5 @@ jobs:
       - name: Run contribution validation
         run: |
           python scripts/validate_contrib.py
+    outputs:
+      validation_status: ${{ job.status }}
