@@ -1,0 +1,7 @@
+name: "ose2osse"
+description: "ose2osse"
+date: "yyyy-mm-dd"
+contact: "contributor1@example.com"
+version: "1.0.0"
+license: "CeCILL-C FREE SOFTWARE LICENSE AGREEMENT"
+dependencies: ""

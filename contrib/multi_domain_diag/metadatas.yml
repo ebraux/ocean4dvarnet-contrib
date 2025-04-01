@@ -1,0 +1,7 @@
+name: "multi_domain_diag"
+description: "multi_domain_diag"
+date: "yyyy-mm-dd"
+contact: "contributor1@example.com"
+version: "1.0.0"
+license: "CeCILL-C FREE SOFTWARE LICENSE AGREEMENT"
+dependencies: ""
