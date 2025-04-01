@@ -27,5 +27,6 @@ jobs:
 
       - name: Build and Deploy
         run: |
+          export PYTHONPATH=$(pwd)/contrib:$PYTHONPATH
           mkdocs build
           mkdocs gh-deploy --force

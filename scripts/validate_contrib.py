@@ -77,7 +77,7 @@ def main():
     Validates all contributions in the 'contrib' directory. If any contribution is invalid,
     the script exits with a non-zero status code.
     """
-    if not validate_all_contributions():
+    if not validate_all_contrib():
         sys.exit(1)  # Non-zero exit status indicates failure
     sys.exit(0)
 
