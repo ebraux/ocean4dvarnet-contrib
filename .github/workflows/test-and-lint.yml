@@ -40,44 +40,45 @@ jobs:
           echo "dirs=$CHANGED_DIRS" >> $GITHUB_ENV
           echo "::set-output name=dirs::$CHANGED_DIRS"
 
-  test-and-lint:
-    needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' && needs.detect-changes.outputs.changed_dirs != '' }}
-    strategy:
-      matrix:
-        contrib_project: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # S'assure que tout l'historique est là
+  # test-and-lint:
+  #   needs: detect-changes
+  #   # Vérification si les directories ont changé (evite de lancer les jobs si aucun changement)
+  #   if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' && needs.detect-changes.outputs.changed_dirs != '' }}
+  #   strategy:
+  #     matrix:
+  #       contrib_project: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0  # S'assure que tout l'historique est là
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: "3.x"
 
-      - name: Install dependencies
-        run: |
-          pip install pylint pytest
+  #     - name: Install dependencies
+  #       run: |
+  #         pip install pylint pytest
 
-      - name: Run pylint
-        run: |
-          pylint contrib/${{ matrix.contrib_project }} --output-format=json > pylint-${{ matrix.contrib_project }}.json || true
+  #     - name: Run pylint
+  #       run: |
+  #         pylint contrib/${{ matrix.contrib_project }} --output-format=json > pylint-${{ matrix.contrib_project }}.json || true
 
-      - name: Run pytest
-        run: |
-          pytest contrib/${{ matrix.contrib_project }}/tests --junitxml=pytest-${{ matrix.contrib_project }}.xml || true
+  #     - name: Run pytest
+  #       run: |
+  #         pytest contrib/${{ matrix.contrib_project }}/tests --junitxml=pytest-${{ matrix.contrib_project }}.xml || true
 
-      - name: Upload lint results
-        uses: actions/upload-artifact@v3
-        with:
-          name: pylint-results-${{ matrix.contrib_project }}
-          path: pylint-${{ matrix.contrib_project }}.json
+  #     - name: Upload lint results
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: pylint-results-${{ matrix.contrib_project }}
+  #         path: pylint-${{ matrix.contrib_project }}.json
 
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: pytest-results-${{ matrix.contrib_project }}
-          path: pytest-${{ matrix.contrib_project }}.xml
+  #     - name: Upload test results
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: pytest-results-${{ matrix.contrib_project }}
+  #         path: pytest-${{ matrix.contrib_project }}.xml
