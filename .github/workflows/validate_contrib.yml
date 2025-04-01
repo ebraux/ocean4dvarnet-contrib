@@ -22,4 +22,4 @@ jobs:
       
       - name: Run contribution validation
         run: |
-          python scripts/validate_contributions.py
+          python scripts/validate_contrib.py

@@ -1,0 +1,38 @@
+site_name: Ocean4DVarNet Contribs Documentation
+site_url: https://yourdomain.com
+repo_url: https://github.com/yourrepo/ocean4dvarnet
+edit_uri: ""
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            show_source: false
+            docstring_style: google
+  - gen-files:
+      scripts:
+        - scripts/generate_contrib_docs.py
+
+nav:
+  - Home: index.md
+  - Contributions: api/index.md
+
+markdown_extensions:
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.emoji
+  - pymdownx.details
+  - attr_list
+  - md_in_html

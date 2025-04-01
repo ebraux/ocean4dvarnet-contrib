@@ -9,3 +9,8 @@ tmp
 data
 jobs
 **/*egg-info
+.pytest_cache
+*.egg
+*.egg-info
+*.whl
+*.tar.gz

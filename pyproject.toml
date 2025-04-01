@@ -1,0 +1,32 @@
+[project]
+name = "ocean4dvarnet-contrib"
+version = "0.0.13"
+description = "contributions for ocean4dvarnet package"
+authors = [
+  { name="Ronan Fablet", email="ronan.fablet@imt-atlantique.fr" },
+  { name="Quentin Febvre", email="quentin.febvre@ifremer.fr" },
+  { name="Pierre Haslee", email="author@example.com" },
+  { name="DanieL Zhu", email="daniel.zhu@imt-atlantique.fr" },
+  { name="Hugo Georgenthum", email="hugo.georgenthum@imt-atlantique.fr" },
+  { name="Braux Emmanuel", email="emmanuel.braux@imt-atlantique.fr" },
+]
+readme = "README.md"
+# Disable license informations when using setuptools as "builder backend"
+#  https://github.com/pypa/packaging-problems/issues/870
+#  https://github.com/pypa/setuptools/issues/4828
+#license = "CECILL-C"
+#license-files = ["LICEN[CS]E*"]
+requires-python = "~=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies = []  
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+
+[tool.pylint.format]
+max-line-length = 120
