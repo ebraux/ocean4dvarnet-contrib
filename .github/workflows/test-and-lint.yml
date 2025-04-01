@@ -42,7 +42,7 @@ jobs:
 
   test-and-lint:
     needs: detect-changes
-    if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' && needs.detect-changes.outputs.changed_dirs != '' }} # N'exécute que si des changements sont détectés
+    if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' && needs.detect-changes.outputs.changed_dirs != '' }}
     strategy:
       matrix:
         contrib_project: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
