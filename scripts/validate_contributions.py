@@ -5,7 +5,7 @@ import sys
 REQUIRED_FIELDS = ['name', 'description', 'date', 'contact', 'version', 'license']
 
 def validate_contribution_info(contrib_folder):
-    contrib_info_file = os.path.join(contrib_folder, 'contribution_info.yaml')
+    contrib_info_file = os.path.join(contrib_folder, 'metadatas.yml')
     
     if not os.path.exists(contrib_info_file):
         print(f"Missing contribution info file in {contrib_folder}")
