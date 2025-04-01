@@ -1,5 +1,9 @@
 # my-ocb modules
 
+![Pylint](https://img.shields.io/badge/pylint-passing-brightgreen)
+![Pytest](https://img.shields.io/badge/pytest-passing-brightgreen)
+
+
 This module links 4DVarNet to OceanBench for predictions. It performs the following pipeline:
 - A `xarray.DataArray` with spatial-temporal observations data is given as input to 4DVarNet;
 - 4DVarNet performs the predictions on each batch;

@@ -1,0 +1,23 @@
+name: Detect Changes
+
+on:
+  push:
+    paths:
+      - 'contrib/**'
+  pull_request:
+    paths:
+      - 'contrib/**'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      folders: ${{ steps.get-changes.outputs.folders }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get changed folders
+        id: get-changes
+        run: |
+          echo "::set-output name=folders::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^contrib/' | cut -d'/' -f2 | sort | uniq | jq -R -s -c 'split("\n")[:-1]')"
