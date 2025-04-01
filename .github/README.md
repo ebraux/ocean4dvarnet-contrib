@@ -25,3 +25,14 @@ Mis en place d'une logique conditionnelle pour exécuter `deploy` directement po
 Avec cette configuration :
 - `deploy` s'exécute pour tous les `push` et `pull_request`.
 - Si le dossier `contrib` est modifié, `validate_contrib` est exécuté en premier, et `deploy` ne s'exécute que si `validate_contrib` réussit.
+
+
+---
+## test-and-lint
+
+- Job detect-changes :
+    - Ce job détecte les sous-dossiers modifiés dans contrib en comparant les commits.
+    - Il utilise git diff pour lister les fichiers modifiés, extrait les noms des sous-dossiers et les passe au job suivant via set-output.
+
+- Job test-and-lint :
+    - Ce job dépend de detect-changes et utilise les sous-dossiers détectés comme matrice pour exécuter les tests et l'analyse de linting.

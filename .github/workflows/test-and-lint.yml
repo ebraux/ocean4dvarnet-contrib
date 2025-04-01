@@ -1,4 +1,4 @@
-name: Test and Lint
+name: Test and Lint on contrib
 
 on:
   push:
@@ -8,7 +8,26 @@ on:
     paths:
       - 'contrib/**'
 
+
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      folders: ${{ steps.get-changes.outputs.folders }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Detect changed folders
+        id: get-changes
+        run: |
+          echo "Detecting changed folders..."
+          CHANGED_FOLDERS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^contrib/' | cut -d'/' -f2 | sort | uniq)
+          echo "Changed folders: $CHANGED_FOLDERS"
+          echo "::set-output name=folders::[$(echo $CHANGED_FOLDERS | jq -R -s -c 'split("\n") | map(select(. != ""))')]"
+#        run: |
+#          echo "::set-output name=folders::$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^contrib/' | cut -d'/' -f2 | sort | uniq | jq -R -s -c 'split("\n")[:-1]')"
+
   test-and-lint:
     runs-on: ubuntu-latest
     strategy:
