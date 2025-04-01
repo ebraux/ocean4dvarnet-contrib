@@ -80,7 +80,7 @@ def generate_markdown_files():
     # Generate the index.md file
     with open(INDEX_FILE, 'w', encoding='utf-8') as index_file:
         index_file.write("# Index of Contributions\n\n")
-        for markdown_file in markdown_files:
+        for markdown_file in sorted(markdown_files):
             file_name = os.path.basename(markdown_file)
             subdir_name = os.path.splitext(file_name)[0]
             index_file.write(f"- [{subdir_name}]({file_name})\n")

@@ -1,6 +1,6 @@
 [project]
 name = "ocean4dvarnet-contrib"
-version = "0.0.13"
+version = "0.0.1"
 description = "contributions for ocean4dvarnet package"
 authors = [
   { name="Ronan Fablet", email="ronan.fablet@imt-atlantique.fr" },
