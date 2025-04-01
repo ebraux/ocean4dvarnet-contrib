@@ -1,0 +1,27 @@
+name: Lint and test contribs
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'contrib/**'  # Exécuter uniquement si des fichiers dans le dossier contrib sont modifiés
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'contrib/**'  # Exécuter uniquement si des fichiers dans le dossier contrib sont modifiés
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyyaml  # Install YAML parser for Python
+    outputs:
+      validation_status: ${{ job.status }}
