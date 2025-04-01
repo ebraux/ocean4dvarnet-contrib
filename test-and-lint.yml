@@ -1,9 +1,9 @@
-name: Tests et Linting par projet
+name: Run Tests & Lint for contrib projects
 
 on:
   push:
     paths:
-      - 'contrib/**'
+      - 'contrib/**'   # Se déclenche seulement si quelque chose dans `contrib/` change
   pull_request:
     paths:
       - 'contrib/**'
@@ -12,105 +12,73 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     outputs:
-      projects: ${{ steps.filter-projects.outputs.projects }}
+      changed_dirs: ${{ steps.filter.outputs.dirs }}
     steps:
-      - name: Checkout du code
+      - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0  # Nécessaire pour obtenir tous les changements
+          fetch-depth: 0  # Récupère tout l'historique pour éviter l'erreur "fatal: bad object"
 
-      - name: Détecter les projets modifiés
-        id: filter-projects
+      - name: Debug GitHub event context
+        run: echo "Before commit: ${{ github.event.before }}"
+
+      - name: Detect modified contrib projects
+        id: filter
         run: |
-          # Obtenir la liste des sous-dossiers modifiés
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "^contrib/")
-          else
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/")
+          BEFORE_COMMIT=${{ github.event.before }}
+
+          # Vérifier si BEFORE_COMMIT est valide, sinon prendre le commit parent
+          if [ -z "$BEFORE_COMMIT" ] || ! git cat-file -e $BEFORE_COMMIT^{commit}; then
+            BEFORE_COMMIT=$(git rev-parse HEAD^)
           fi
-          
-          # Extraire les noms de projets uniques
-          PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
-          echo "Projets détectés: $PROJECTS"
 
-  lint-and-test:
-    needs: detect-changes
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        project: ${{ fromJson(needs.detect-changes.outputs.projects) }}
-      fail-fast: false
-    
-    steps:
-      - name: Checkout du code
-        uses: actions/checkout@v3
+          echo "Comparing $BEFORE_COMMIT with ${{ github.sha }}"
 
-      - name: Configurer Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-          cache: 'pip'
+          # Récupérer les dossiers modifiés sous contrib/
+          CHANGED_DIRS=$(git diff --name-only $BEFORE_COMMIT ${{ github.sha }} | grep '^contrib/' | cut -d'/' -f2 | sort -u | jq -R -s -c 'split("\n")[:-1]')
 
-      - name: Installer les dépendances
-        run: |
-          python -m pip install --upgrade pip
-          # Installer les dépendances spécifiques au projet
-          if [ -f contrib/${{ matrix.project }}/requirements.txt ]; then
-            pip install -r contrib/${{ matrix.project }}/requirements.txt
-          fi
-          # Installer les outils de test et de linting
-          pip install pytest pytest-cov pylint
+          echo "dirs=$CHANGED_DIRS" >> $GITHUB_ENV
+          echo "::set-output name=dirs::$CHANGED_DIRS"
 
-      - name: Exécuter Pylint
-        id: pylint
-        continue-on-error: true
-        run: |
-          cd contrib/${{ matrix.project }}
-          mkdir -p ../../reports/${{ matrix.project }}
-          SCORE=$(pylint --output-format=text *.py **/*.py 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
-          echo "score=$SCORE" >> $GITHUB_OUTPUT
-          echo "Score Pylint: $SCORE/10"
+  # test-and-lint:
+  #   needs: detect-changes
+  #   # Vérification si les directories ont changé (evite de lancer les jobs si aucun changement)
+  #   if: ${{ needs.detect-changes.outputs.changed_dirs != '[]' && needs.detect-changes.outputs.changed_dirs != '' }}
+  #   strategy:
+  #     matrix:
+  #       contrib_project: ${{ fromJson(needs.detect-changes.outputs.changed_dirs) }}
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0  # S'assure que tout l'historique est là
 
-      - name: Générer le badge Pylint
-        run: |
-          mkdir -p .github/badges
-          SCORE=${{ steps.pylint.outputs.score }}
-          COLOR="red"
-          if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green"; 
-          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow"; fi
-          
-          curl -o .github/badges/${{ matrix.project }}-pylint.svg \
-            "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
-      
-      - name: Exécuter Pytest
-        id: pytest
-        continue-on-error: true
-        run: |
-          cd contrib/${{ matrix.project }}
-          mkdir -p ../../reports/${{ matrix.project }}
-          pytest --cov=. --cov-report=xml:../../reports/${{ matrix.project }}/coverage.xml
-          
-          # Extraire le pourcentage de couverture
-          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('../../reports/${{ matrix.project }}/coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
-          COVERAGE_PCT=$(python -c "print(round(float('${COVERAGE}') * 100, 2))")
-          echo "coverage=$COVERAGE_PCT" >> $GITHUB_OUTPUT
-          echo "Couverture de test: $COVERAGE_PCT%"
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: "3.x"
 
-      - name: Générer le badge de couverture
-        run: |
-          mkdir -p .github/badges
-          COVERAGE=${{ steps.pytest.outputs.coverage }}
-          COLOR="red"
-          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green"; 
-          elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
-          
-          curl -o .github/badges/${{ matrix.project }}-coverage.svg \
-            "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
+  #     - name: Install dependencies
+  #       run: |
+  #         pip install pylint pytest
 
-      - name: Sauvegarder les badges
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Mise à jour des badges pour ${{ matrix.project }}"
-          file_pattern: .github/badges/${{ matrix.project }}*.svg
-          branch: ${{ github.ref }}
+  #     - name: Run pylint
+  #       run: |
+  #         pylint contrib/${{ matrix.contrib_project }} --output-format=json > pylint-${{ matrix.contrib_project }}.json || true
+
+  #     - name: Run pytest
+  #       run: |
+  #         pytest contrib/${{ matrix.contrib_project }}/tests --junitxml=pytest-${{ matrix.contrib_project }}.xml || true
+
+  #     - name: Upload lint results
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: pylint-results-${{ matrix.contrib_project }}
+  #         path: pylint-${{ matrix.contrib_project }}.json
+
+  #     - name: Upload test results
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: pytest-results-${{ matrix.contrib_project }}
+  #         path: pytest-${{ matrix.contrib_project }}.xml

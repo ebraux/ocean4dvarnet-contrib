@@ -1,30 +1,116 @@
-name: Lint and test contribs
+name: Tests et Linting par projet
 
 on:
   push:
-    branches:
-      - main
     paths:
-      - 'contrib/**'  # Exécuter uniquement si des fichiers dans le dossier contrib sont modifiés
+      - 'contrib/**'
   pull_request:
-    branches:
-      - main
     paths:
-      - 'contrib/**'  # Exécuter uniquement si des fichiers dans le dossier contrib sont modifiés
+      - 'contrib/**'
 
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.filter-projects.outputs.projects }}
     steps:
-      - name: Checkout repository
+      - name: Checkout du code
         uses: actions/checkout@v3
-      
-      - name: Debug GitHub event context
-        run: echo "Before commit: ${{ github.event.before }}"
-        
-      - name: Install dependencies
+        with:
+          fetch-depth: 0  # Nécessaire pour obtenir tous les changements
+
+      - name: Détecter les projets modifiés
+        id: filter-projects
+        run: |
+          # Obtenir la liste des sous-dossiers modifiés
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "^contrib/")
+          else
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/")
+          fi
+          
+          # Extraire les noms de projets uniques
+          PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
+          echo "Projets détectés: $PROJECTS"
+
+  lint-and-test:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: ${{ fromJson(needs.detect-changes.outputs.projects) }}
+      fail-fast: false
+    
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v3
+
+      - name: Configurer Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Installer les dépendances
         run: |
           python -m pip install --upgrade pip
-          pip install pyyaml  # Install YAML parser for Python
-    outputs:
-      validation_status: ${{ job.status }}
+          # Installer les dépendances spécifiques au projet
+          if [ -f contrib/${{ matrix.project }}/requirements.txt ]; then
+            pip install -r contrib/${{ matrix.project }}/requirements.txt
+          fi
+          # Installer les outils de test et de linting
+          pip install pytest pytest-cov pylint
+
+      - name: Exécuter Pylint
+        id: pylint
+        continue-on-error: true
+        run: |
+          cd contrib/${{ matrix.project }}
+          mkdir -p ../../reports/${{ matrix.project }}
+          SCORE=$(pylint --output-format=text *.py **/*.py 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "Score Pylint: $SCORE/10"
+
+      - name: Générer le badge Pylint
+        run: |
+          mkdir -p .github/badges
+          SCORE=${{ steps.pylint.outputs.score }}
+          COLOR="red"
+          if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green"; 
+          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow"; fi
+          
+          curl -o .github/badges/${{ matrix.project }}-pylint.svg \
+            "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
+      
+      - name: Exécuter Pytest
+        id: pytest
+        continue-on-error: true
+        run: |
+          cd contrib/${{ matrix.project }}
+          mkdir -p ../../reports/${{ matrix.project }}
+          pytest --cov=. --cov-report=xml:../../reports/${{ matrix.project }}/coverage.xml
+          
+          # Extraire le pourcentage de couverture
+          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('../../reports/${{ matrix.project }}/coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
+          COVERAGE_PCT=$(python -c "print(round(float('${COVERAGE}') * 100, 2))")
+          echo "coverage=$COVERAGE_PCT" >> $GITHUB_OUTPUT
+          echo "Couverture de test: $COVERAGE_PCT%"
+
+      - name: Générer le badge de couverture
+        run: |
+          mkdir -p .github/badges
+          COVERAGE=${{ steps.pytest.outputs.coverage }}
+          COLOR="red"
+          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green"; 
+          elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
+          
+          curl -o .github/badges/${{ matrix.project }}-coverage.svg \
+            "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
+
+      - name: Sauvegarder les badges
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Mise à jour des badges pour ${{ matrix.project }}"
+          file_pattern: .github/badges/${{ matrix.project }}*.svg
+          branch: ${{ github.ref }}
