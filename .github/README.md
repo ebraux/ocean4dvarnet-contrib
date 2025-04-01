@@ -30,44 +30,61 @@ Avec cette configuration :
 ---
 ## test-and-lint
 
-- Job detect-changes :
-    - Ce job détecte les sous-dossiers modifiés dans contrib en comparant les commits.
-    - Il utilise git diff pour lister les fichiers modifiés, extrait les noms des sous-dossiers et les passe au job suivant via set-output.
+Tu veux mettre en place une **CI GitHub Actions** qui :  
+✅ **Exécute `pylint` et `pytest` sur chaque sous-dossier de `contrib/`**  
+✅ **Ne déclenche les tests que si le sous-dossier a été modifié**  
+✅ **Stocke les résultats individuellement pour générer des badges**  
 
-- Job test-and-lint :
-    - Ce job dépend de detect-changes et utilise les sous-dossiers détectés comme matrice pour exécuter les tests et l'analyse de linting.
+---
 
-The the `github.event.before` might not exist in the repository. This can happen if the event triggering the workflow (e.g., a push) is the first commit in the branch or if the branch was created without a prior commit.
+### 🛠 **1. Organisation du Dossier**
+Ton projet ressemble à ceci :  
+```
+ocean4dvarnet-contrib/
+│── contrib/
+│   ├── projet_A/
+│   │   ├── tests/    # Tests pour projet_A
+│   │   ├── module_A.py
+│   ├── projet_B/
+│   │   ├── tests/    # Tests pour projet_B
+│   │   ├── module_B.py
+│   ├── ...
+│── .github/workflows/
+│   ├── ci.yml        # Workflow GitHub Actions
+```
 
-To fix this, we can add a fallback mechanism to handle cases where `github.event.before` is invalid. If `github.event.before` is not a valid commit, we can use the initial commit of the branch or compare against the default branch.
+---
 
-### [test-and-lint.yml](file:///home/ebraux/_LOCAL/mee/ocean4dvarnet-contrib/.github/workflows/test-and-lint.yml)
 
-Update the `Detect changed folders` step to handle invalid `github.event.before` values.
+---
 
-````yaml
-# ...existing code...
-      - name: Detect changed folders
-        id: get-changes
-        run: |
-          echo "Detecting changed folders..."
-          BEFORE_COMMIT=${{ github.event.before }}
-          if ! git cat-file -e $BEFORE_COMMIT 2>/dev/null; then
-            echo "Invalid 'before' commit. Using the default branch as the base."
-            BEFORE_COMMIT=$(git rev-parse origin/${{ github.event.repository.default_branch }})
-          fi
-          CHANGED_FOLDERS=$(git diff --name-only $BEFORE_COMMIT ${{ github.sha }} | grep '^contrib/' | cut -d'/' -f2 | sort | uniq)
-          echo "Changed folders: $CHANGED_FOLDERS"
-          echo "::set-output name=folders::[$(echo $CHANGED_FOLDERS | jq -R -s -c 'split(\"\\n\") | map(select(. != \"\"))')]"
-# ...existing code...
-````
+### 📌 **3. Comment Ça Fonctionne ?**
+1. 🔍 **Détecte les changements** dans `contrib/` et identifie les sous-dossiers impactés  
+2. 🔄 **Déclenche des jobs indépendants** pour chaque dossier modifié  
+3. ✅ **Exécute `pylint` et `pytest` seulement sur les dossiers concernés**  
+4. 📂 **Stocke les résultats (`.json` et `.xml`)** pour générer des badges  
 
-### Explanation of Changes:
-1. **Fallback for `github.event.before`:** 
-   - Check if `github.event.before` is a valid commit using `git cat-file -e`.
-   - If invalid, fallback to the default branch's latest commit (`origin/${{ github.event.repository.default_branch }}`).
+---
 
-2. **Ensure Robustness:**
-   - This ensures the workflow works even for the first commit in a branch or when `github.event.before` is unavailable.
+### 🏅 **4. Générer des Badges**
+Tu peux ajouter des badges dans `README.md` en utilisant [shields.io](https://shields.io) :
 
-Made changes.
+#### ✅ **Badge Pytest (via GitHub Actions)**
+Ajoute ceci dans **README.md** :
+```md
+![Pytest](https://github.com/ebraux/ocean4dvarnet-contrib/actions/workflows/ci.yml/badge.svg)
+```
+
+#### ✅ **Badge Pylint (via Shields.io + Upload des Scores)**
+Tu peux aussi **publier le score Pylint** dans un fichier (`pylint-score.txt`) et utiliser une **GitHub Action spécifique** pour l'extraire.
+
+---
+
+### 🎯 **Avantages de cette Approche**
+✅ **Se lance uniquement si nécessaire**  
+✅ **Exécute `pytest` et `pylint` indépendamment pour chaque projet**  
+✅ **Stocke des résultats exploitables pour des badges et des stats**  
+
+---
+
+### ❓ **Besoin d'aide pour générer les badges automatiquement ?** 😊
