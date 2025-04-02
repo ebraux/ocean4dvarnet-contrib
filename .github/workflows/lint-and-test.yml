@@ -118,9 +118,11 @@ jobs:
       - name: Re-Generate contribution index
         run: python scripts/manage_contrib_list.py
 
-      - name: Sauvegarder les badges
+      - name: Sauvegarder les badges, les rapports et la documentation
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: "Mise à jour des badges pour ${{ matrix.project }}"
-          file_pattern: docs/contrib/${{ matrix.project }}/**
+          commit_message: "Mise à jour des fichiers pour ${{ matrix.project }}"
+          file_pattern: |
+            docs/contrib/${{ matrix.project }}/**
+            docs/contrib/index.md
           branch: ${{ github.ref }}
