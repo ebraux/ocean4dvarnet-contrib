@@ -4,7 +4,6 @@ from hydra.core.config_store import ConfigStore
 import datetime
 import pandas as pd
 
-# test 5
 
 cs = ConfigStore().instance()
 
