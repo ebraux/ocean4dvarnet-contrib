@@ -1,5 +1,43 @@
 # Creating a New Contribution
 
+Une  contribution doit contenir au minimum :
+
+``` bash
+contrib/
+├── <CONTRIB_NAME>
+│   ├── __init__.py
+│   ├── metadatas.yml
+│   ├── README.md
+│   ├── <CONTRIB_NAME>.py
+|   └── tests/
+|      └── test_<CONTRIB_NAME>.py
+```
+
+- `__init__.py` : fichier de configuration du module, peut êtr vide
+- `metadatas.yml` : contient les information sur la contrinution, auteur, description, ...
+- `README.md`
+- `<CONTRIB_NAME>.py` : votre code
+- `test
+
+
+Il peut également contenir en plus :
+
+- `requirement.txt`
+- `pyproject.toml`
+- `LICENSE.md`
+- d'autres fichiers de code python
+
+Pour initialiser une nouvelle contribution, utiliser le script `init-new-contrib`
+``` bash
+python scripts/init-new-contrib.sh CONTRIB_NAME
+```
+
+Pour être intégré au dépôt, la contribution sera évalué avec les outils de test de qualité de code (`pylint`, ...).
+
+Les test ne sont pas obligatoires, mais fortement recommandés. Le code est testé avec `pytest`
+
+
+
 From the terminal, run the command:
 ``` bash
 python3 scripts/init.py <YOUR_CONTRIB_NAME>
