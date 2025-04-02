@@ -83,7 +83,7 @@ def sync_contrib_docs():
     with open(INDEX_FILE, 'w', encoding='utf-8') as index_file:
         index_file.write("# Index of Contributions\n\n")
         for doc_dir in sorted(docs_contrib_dirs & contrib_dirs):  # Only include valid directories
-            readme_path = os.path.join(DOCS_CONTRIB_DIR, doc_dir, "README.md")
+            readme_path = os.path.join(DOCS_CONTRIB_DIR, doc_dir)
             if os.path.exists(readme_path):
                 index_file.write(f"- [{doc_dir}](./{doc_dir}/README.md)\n")
 
