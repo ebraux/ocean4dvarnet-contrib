@@ -15,8 +15,8 @@ import sys
 import yaml
 
 CONTRIB_DIR = "./contrib"
-DOCS_DIR = "./docs/api"
-INDEX_FILE = "./docs/api/index.md"
+DOCS_DIR = "./docs/contrib"
+INDEX_FILE = "./docs/contrib/index.md"
 
 def generate_markdown_for_contrib(contrib_name):
     """
@@ -40,7 +40,12 @@ def generate_markdown_for_contrib(contrib_name):
     markdown_file = os.path.join(docdir_path, 'README.md')
     print(f"Creating Markdown file: {markdown_file}")
     with open(markdown_file, 'w', encoding='utf-8') as md_file:
-        md_file.write(f"# {contrib_name}\n\n")
+        md_file.write(f"# {contrib_name}\n")
+
+        # Badges pylint and pytest
+        md_file.write("![pylint](./badges/pylint.png)")
+        md_file.write("![pytest](./badges/pytest.png)")
+        md_file.write("\n\n")
 
         # Check if metadatas.yml exists in the subdirectory
         metadata_file_path = os.path.join(subdir_path, "metadatas.yml")

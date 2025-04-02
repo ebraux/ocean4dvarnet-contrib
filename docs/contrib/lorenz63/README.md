@@ -1,5 +1,8 @@
 # lorenz63
 
+![pylint](./badges/pylint.png)
+![pytest](./badges/pytest.png)
+
 | Key | Value |
 |-----|-------|
 | name | lorenz63 |
@@ -11,5 +14,5 @@
 | dependencies |  |
 
 ----------------------------------------
-::: lorenz63.data
 ::: lorenz63.models
+::: lorenz63.data
