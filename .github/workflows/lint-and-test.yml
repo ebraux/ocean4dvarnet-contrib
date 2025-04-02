@@ -116,7 +116,7 @@ jobs:
         run: python scripts/generate_contrib_docs.py ${{ matrix.project }}
 
       - name: Re-Generate contribution index
-        run: python scripts/manage_contrib_list
+        run: python scripts/manage_contrib_list.py
 
       - name: Sauvegarder les badges
         uses: stefanzweifel/git-auto-commit-action@v4

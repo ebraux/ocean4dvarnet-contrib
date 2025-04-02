@@ -1,3 +1,4 @@
+
 [![Validate Contributions](https://github.com/ebraux/ocean4dvarnet-contrib/actions/workflows/validate_contrib.yml/badge.svg)](https://github.com/ebraux/ocean4dvarnet-contrib/actions/workflows/validate_contrib.yml)
 
 # Résumé de l'organisation**
