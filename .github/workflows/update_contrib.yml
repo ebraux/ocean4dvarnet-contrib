@@ -68,7 +68,7 @@ jobs:
       - name: Run contribution metadatas validation
         continue-on-error: false
         run: |
-          python scripts/validate_contrib_metadatas.py
+          python scripts/validate_contrib_metadatas.py ${{ matrix.project }}
 
       - name: Exécuter Pylint
         id: pylint
