@@ -11,5 +11,5 @@
 | dependencies |  |
 
 ----------------------------------------
-::: lorenz63.models
 ::: lorenz63.data
+::: lorenz63.models
