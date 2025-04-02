@@ -87,8 +87,7 @@ jobs:
           COLOR="red"
           if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green"; 
           elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow"; fi
-          
-          rm docs/contrib/${{ matrix.project }}/badges/pylint.svg
+
           curl -o docs/contrib/${{ matrix.project }}/badges/pylint.svg \
             "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
           echo "pylint badge=docs/contrib/${{ matrix.project }}/badges/pylint.svg"
@@ -113,8 +112,7 @@ jobs:
           COLOR="red"
           if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green"; 
           elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
-          
-          rm docs/contrib/${{ matrix.project }}/badges/coverage.svg
+
           curl -o docs/contrib/${{ matrix.project }}/badges/coverage.svg \
             "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
           echo "pytest badge=docs/contrib/${{ matrix.project }}/badges/coverage.svg"
