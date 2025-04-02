@@ -1,6 +1,8 @@
 from contrib.lorenz63.models import percent_err
 from hydra.core.config_store import ConfigStore
 
+# test 
+
 cs = ConfigStore().instance()
 
 sl_cfg = lambda *a: dict(_target_='builtins.slice', _args_=a)
