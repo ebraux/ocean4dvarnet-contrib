@@ -1,5 +1,6 @@
 # ose_training
-![pylint](./badges/pylint.png)![pytest](./badges/pytest.png)
+![pylint](./badges/pylint.svg)
+![pytest](./badges/coverage.svg)
 
 | Key | Value |
 |-----|-------|

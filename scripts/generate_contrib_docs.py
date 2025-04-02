@@ -43,8 +43,8 @@ def generate_markdown_for_contrib(contrib_name):
         md_file.write(f"# {contrib_name}\n")
 
         # Badges pylint and pytest
-        md_file.write("![pylint](./badges/pylint.png)")
-        md_file.write("![pytest](./badges/pytest.png)")
+        md_file.write("![pylint](./badges/pylint.svg)")
+        md_file.write("![pytest](./badges/pytest.svg)")
         md_file.write("\n\n")
 
         # Check if metadatas.yml exists in the subdirectory

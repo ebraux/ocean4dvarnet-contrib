@@ -85,9 +85,11 @@ jobs:
           if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green"; 
           elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow"; fi
           
+          rm docs/contrib/${{ matrix.project }}/badges/pylint.svg
           curl -o docs/contrib/${{ matrix.project }}/badges/pylint.svg \
             "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
-      
+          echo "pylint badge=docs/contrib/${{ matrix.project }}/badges/pylint.svg"
+
       - name: Exécuter Pytest
         id: pytest
         continue-on-error: true
@@ -109,9 +111,10 @@ jobs:
           if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green"; 
           elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
           
+          rm docs/contrib/${{ matrix.project }}/badges/coverage.svg
           curl -o docs/contrib/${{ matrix.project }}/badges/coverage.svg \
             "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
-
+          echo "pytest badge=docs/contrib/${{ matrix.project }}/badges/coverage.svg"
       - name: Generate contribution documentation
         run: python scripts/generate_contrib_docs.py ${{ matrix.project }}
 
@@ -122,7 +125,5 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Mise à jour des fichiers pour ${{ matrix.project }}"
-          file_pattern: |
-            docs/contrib/${{ matrix.project }}/**
-            docs/contrib/index.md
+          file_pattern: docs/contrib/${{ matrix.project }}/**/* docs/contrib/index.md
           branch: ${{ github.ref }}
