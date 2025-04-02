@@ -8,7 +8,7 @@ and the validation of all contributions in the contrib directory.
 
 import os
 import shutil
-from scripts.validate_contrib import validate_contrib_info, validate_all_contrib
+from scripts.validate_contrib_metadatas import validate_contrib_info, validate_all_contrib
 
 valid_contrib_name = "_test_valid_contrib"
 invalid_contrib_name = "_test_invalid_contrib"

@@ -35,15 +35,14 @@ jobs:
           echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
           echo "Projets détectés: $PROJECTS"
 
-
-  lint-and-test:
+  update-contrib:
     needs: detect-changes
     runs-on: ubuntu-latest
     strategy:
       matrix:
         project: ${{ fromJson(needs.detect-changes.outputs.projects) }}
       fail-fast: false
-    
+
     steps:
       - name: Checkout du code
         uses: actions/checkout@v3
@@ -53,7 +52,6 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
-
 
       - name: Installer les dépendances
         run: |
@@ -66,6 +64,11 @@ jobs:
           fi
           # Installer les outils de test et de linting
           pip install pytest pytest-cov pylint
+
+      - name: Run contribution metadatas validation
+        continue-on-error: false
+        run: |
+          python scripts/validate_contrib_metadatas.py
 
       - name: Exécuter Pylint
         id: pylint
@@ -115,6 +118,7 @@ jobs:
           curl -o docs/contrib/${{ matrix.project }}/badges/coverage.svg \
             "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
           echo "pytest badge=docs/contrib/${{ matrix.project }}/badges/coverage.svg"
+
       - name: Generate contribution documentation
         run: python scripts/generate_contrib_docs.py ${{ matrix.project }}
 

@@ -1,7 +1,7 @@
 import os
 import shutil
 from scripts.create_metadatas import create_metadata_files
-from scripts.validate_contrib import validate_contrib_info
+from scripts.validate_contrib_metadatas import validate_contrib_info
 
 contrib_name = "_test_metadatas"
 
