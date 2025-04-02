@@ -1,3 +1,4 @@
+---
 name: Tests et Linting par projet
 
 on:
@@ -28,7 +29,7 @@ jobs:
           else
             CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/")
           fi
-          
+
           # Extraire les noms de projets uniques
           PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
@@ -49,7 +50,7 @@ jobs:
       - name: Configurer Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Installer les dépendances
@@ -74,43 +75,47 @@ jobs:
 
       - name: Générer le badge Pylint
         run: |
-          mkdir -p .github/badges
+          mkdir -p docs/api/${{ matrix.project }}/badges
           SCORE=${{ steps.pylint.outputs.score }}
           COLOR="red"
           if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green"; 
           elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow"; fi
           
-          curl -o .github/badges/${{ matrix.project }}-pylint.svg \
+          curl -o docs/api/${{ matrix.project }}/badges/${{ matrix.project }}-pylint.svg \
             "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
       
       - name: Exécuter Pytest
         id: pytest
         continue-on-error: true
         run: |
+          mkdir -p docs/api/${{ matrix.project }}/reports
           cd contrib/${{ matrix.project }}
-          mkdir -p ../../reports/${{ matrix.project }}
-          pytest --cov=. --cov-report=xml:../../reports/${{ matrix.project }}/coverage.xml
+          pytest --cov=. --cov-report=xml:../../docs/api/${{ matrix.project }}/reports/coverage.xml
           
           # Extraire le pourcentage de couverture
-          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('../../reports/${{ matrix.project }}/coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
+          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('docs/api/${{ matrix.project }}/reports${{ matrix.project }}/coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
           COVERAGE_PCT=$(python -c "print(round(float('${COVERAGE}') * 100, 2))")
           echo "coverage=$COVERAGE_PCT" >> $GITHUB_OUTPUT
           echo "Couverture de test: $COVERAGE_PCT%"
 
       - name: Générer le badge de couverture
         run: |
-          mkdir -p .github/badges
+          mkdir -p docs/api/${{ matrix.project }}/badges
           COVERAGE=${{ steps.pytest.outputs.coverage }}
           COLOR="red"
           if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green"; 
           elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
           
-          curl -o .github/badges/${{ matrix.project }}-coverage.svg \
+          curl -o docs/api/${{ matrix.project }}/badges/${{ matrix.project }}-coverage.svg \
             "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
+
+      - name: Generate contribution documentation
+        run: python scripts/generate_contrib_docs.py ${{ matrix.project }}
+
 
       - name: Sauvegarder les badges
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Mise à jour des badges pour ${{ matrix.project }}"
-          file_pattern: .github/badges/${{ matrix.project }}*.svg
+          file_pattern: docs/api/${{ matrix.project }}/**
           branch: ${{ github.ref }}

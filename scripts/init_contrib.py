@@ -25,7 +25,7 @@ def is_valid_contribution_name(name):
 
 def create_contribution(name):
     """
-    Create a new contribution directory with a README.md and metadatas.yml file.
+    Create a new contribution directory with a README.md, metadatas.yml, __init__.py, code and tests files.
 
     Parameters:
     - name (str): The name of the contribution.
@@ -60,9 +60,26 @@ dependencies: ""
 
     # Create __init__.py
     init_py_path = os.path.join(contrib_path, '__init__.py')
-    with open(init_py_path, 'w', encoding='utf-8') as init_py_path:
-        init_py_path.write(f"# {name}\n")
+    with open(init_py_path, 'w', encoding='utf-8') as init_py_file:
+        init_py_file.write(f"# {name}\n")
     print(f"Created __init__.py in {contrib_path}")
+
+    # Create CONTRIB_NAME.py
+    code_path = os.path.join(contrib_path, name, '.py')
+    with open(code_path, 'w', encoding='utf-8') as code_file:
+        code_file.write(f"\"\"\"ocean4dvarnet contribution {name}\"\"\"\n")
+    print(f"Created {name}.py in {contrib_path}")
+
+    # Create tests folder
+    tests_path = os.path.join(contrib_path, 'tests')
+    os.makedirs(tests_path, exist_ok=True)
+    print(f"Created tests directory in {contrib_path}")
+
+    # Create tests/tests_CONTRIB_NAME.py
+    test_path = os.path.join(contrib_path, 'tests/test_' name, '.py')
+    with open(test_path, 'w', encoding='utf-8') as test_file:
+        code_file.write(f"\"\"\"tests for ocean4dvarnet contribution {name}\"\"\"\n")
+    print(f"Created tests/test_{name}.py in {contrib_path}")
 
 
 def main():
