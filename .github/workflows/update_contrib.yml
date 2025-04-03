@@ -125,7 +125,7 @@ jobs:
 
       - name: display contrib
         run: |
-           apt install -y tree
+           sudo apt install -y tree
            tree docs/contrib
 
       - name: Sauvegarder les badges, les rapports et la documentation
