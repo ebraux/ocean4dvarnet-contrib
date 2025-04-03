@@ -33,8 +33,6 @@ jobs:
           else
             CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/" || true)
           fi
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/" || true)
-          fi
 
           # Extraire les noms de projets uniques
           echo "CHANGED_FILES: $CHANGED_FILES"
