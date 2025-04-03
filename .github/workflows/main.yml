@@ -140,10 +140,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
+      - name: Install Global dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install mkdocs
+          # Installer les dépendances globales
+          pip install -r requirements.txt
 
       - name: Run pytest for scripts
         run: |
@@ -184,13 +184,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download generated files for contrib
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: generated-files-*
           path: docs/contrib/
 
       - name: Download generated files for scripts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: generated-files-scripts/*
           path: docs/scripts/
@@ -224,8 +224,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Global dependencies
+        run: |
+          # Installer les dépendances globales
+          pip install -r requirements.txt
+
+      - name: debug
+        run: |
+           sudo apt install -y tree
+           tree docs
+
       - name: Deploy MkDocs to GitHub Pages
- #       if: needs.build.outputs.deploy == 'true'
+        if: needs.build.outputs.deploy == 'true'
         run: |
           mkdocs gh-deploy --force
 
