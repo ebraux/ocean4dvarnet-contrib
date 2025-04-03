@@ -5,8 +5,10 @@ on:
   push:
     paths:
       - 'docs/**'
-      - 'mkdocs.yml'
-      - 'contrib/**'
+          - 'mkdocs.yml'
+      - '/**'
+rib/- 'scripts/**'
+**'
       - 'scripts/**'
 
 jobs:
@@ -207,6 +209,12 @@ jobs:
         run:
           echo "deploy=true" >> $GITHUB_ENV
 
+      - name: Upload generated files
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-files-scripts
+          path: docs/scripts
+
   merge-docs-and-update-repo:
     needs:
       - contrib
@@ -223,12 +231,14 @@ jobs:
         with:
           name: generated-files-*
           path: docs/contrib/
+          if-no-files-found: ignore  # Ignore l'erreur si aucun artifact n'est trouvé
 
       - name: Download generated files for scripts
         uses: actions/download-artifact@v4
         with:
           name: generated-files-scripts/*
           path: docs/scripts/
+          if-no-files-found: ignore  # Ignore l'erreur si aucun artifact n'est trouvé
 
       - name: Generate documentation for contrib
         run: |
