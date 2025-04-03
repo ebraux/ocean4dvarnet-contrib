@@ -220,7 +220,7 @@ jobs:
 
       - name: Enable artifact management
         run:
-          echo "artifact-script=true" >> $GITHUB_ENV
+          echo "artifact-scripts=true" >> $GITHUB_ENV
 
 
   merge-docs-and-update-repo:
@@ -242,7 +242,7 @@ jobs:
           path: docs/contrib/
         
       - name: Download generated files for scripts
-        if: needs.script.outputs.artifact-script == 'true'
+        if: needs.scripts.outputs.artifact-scripts == 'true'
         uses: actions/download-artifact@v4
         with:
           name: generated-files-scripts/*
@@ -256,10 +256,11 @@ jobs:
       - name: debug
         run: |
            sudo apt install -y tree
-           tree docs/contrib
-           tree docs/scripts
-           tree generated-files-*
-           tree generated-files-scripts
+           tree .
+           # tree docs/contrib
+           # tree docs/scripts
+           # tree generated-files-*
+           # tree generated-files-scripts
 
       - name: Commit and push generated files
         uses: stefanzweifel/git-auto-commit-action@v4
