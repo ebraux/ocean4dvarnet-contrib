@@ -85,13 +85,12 @@ jobs:
           echo "Generating pylint badges for ${{ matrix.dir }}"
           mkdir -p generated-files/${{ matrix.dir }}/badges
           SCORE=${{ steps.pylint.outputs.score }}
-          COLOR="red"
-          if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green";
-          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow";
-          elif (( $(echo "$SCORE > 3.0" | bc -l) )); then COLOR="orange";
-          elif (( $(echo "$SCORE > 1.0" | bc -l) )); then COLOR="red"; fi
+          SCORE-COLOR="red"
+          if (( $(echo "$SCORE > 7.0" | bc -l) )); then SCORE-COLOR="green";
+          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then SCORE-COLOR="yellow";
+          elif (( $(echo "$SCORE > 3.0" | bc -l) )); then SCORE-COLOR="orange"; fi
           curl -o docs/contrib/${{ matrix.dir }}/badges/pylint.svg \
-            "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
+            "https://img.shields.io/badge/pylint-$SCORE-COLOR"
           echo "pylint badge=generated-files/${{ matrix.dir }}/badges/pylint.svg"
 
       - name: Run pytest ${{ matrix.dir }}
@@ -113,14 +112,12 @@ jobs:
           echo "Generating COV badges for ${{ matrix.dir }}"
           mkdir -p generated-files/${{ matrix.dir }}/badges
           COVERAGE=${{ steps.pytest.outputs.coverage }}
-          COLOR="red"
-          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green";
-          elif (( $(echo "$COVERAGE > 70.0" | bc -l) )); then COLOR="yellow";
-          elif (( $(echo "$COVERAGE > 50.0" | bc -l) )); then COLOR="orange";
-          elif (( $(echo "$COVERAGE > 40.0" | bc -l) )); then COLOR="red";
-          elif (( $(echo "$COVERAGE > 30.0" | bc -l) )); then COLOR="red"; fi
+          COVERAGE-COLOR="red"
+          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COVERAGE-COLOR="green";
+          elif (( $(echo "$COVERAGE > 70.0" | bc -l) )); then COVERAGE-COLOR="yellow";
+          elif (( $(echo "$COVERAGE > 50.0" | bc -l) )); then COVERAGE-COLOR="orange"; fi
           curl -o generated-files/${{ matrix.dir }}/badges/coverage.svg \
-            "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
+            "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COVERAGE-COLOR"
           echo "pytest badge=generated-files/${{ matrix.dir }}/badges/coverage.svg"
 
       - name: Generate documentation for ${{ matrix.dir }}
