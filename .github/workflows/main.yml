@@ -174,7 +174,7 @@ jobs:
           elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow";
           elif (( $(echo "$SCORE > 3.0" | bc -l) )); then COLOR="orange";
           elif (( $(echo "$SCORE > 1.0" | bc -l) )); then COLOR="red"; fi
-          curl -o docs/contrib/${{ matrix.dir }}/badges/pylint.svg \
+          curl -o generated-files-scripts/badges/pylint.svg \
             "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
           echo "pylint badge=generated-files-scripts/badges/pylint.svg"
 
