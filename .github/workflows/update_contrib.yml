@@ -123,6 +123,11 @@ jobs:
       - name: Re-Generate contribution index
         run: python scripts/manage_contrib_list.py
 
+      - name: display contrib
+        run: |
+           apt install -y tree
+           tree docs/contrib
+
       - name: Sauvegarder les badges, les rapports et la documentation
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
