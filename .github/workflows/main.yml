@@ -8,13 +8,13 @@ on:
       - 'mkdocs.yml'
       - 'contrib/**'
       - 'scripts/**'
-  pull_request:  # Ajout pour les PRs
-    paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - 'contrib/**'
-      - 'contrib/**'
-      - 'scripts/**'
+  # pull_request:  # Ajout pour les PRs
+  #   paths:
+  #     - 'docs/**'
+  #     - 'mkdocs.yml'
+  #     - 'contrib/**'
+  #     - 'contrib/**'
+  #     - 'scripts/**'
 
 jobs:
   build:
