@@ -125,7 +125,10 @@ jobs:
           path: generated-files/${{ matrix.dir }}
 
   scripts:
-    if: contains(join(github.event.commits.*.modified, github.event.commits.*.added, github.event.commits.*.removed), 'scripts/'))
+    if: >
+      contains(join(github.event.commits.*.modified, ','), 'scripts/') ||
+      contains(join(github.event.commits.*.added, ','), 'scripts/') ||
+      contains(join(github.event.commits.*.removed, ','), 'scripts/')
     runs-on: ubuntu-latest
 
     steps:

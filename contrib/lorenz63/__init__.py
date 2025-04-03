@@ -1,7 +1,7 @@
 from contrib.lorenz63.models import percent_err
 from hydra.core.config_store import ConfigStore
 
-# test 23
+# test 24
 
 cs = ConfigStore().instance()
 
