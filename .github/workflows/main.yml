@@ -13,8 +13,8 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - 'contrib/**'
-      - 'contrib/**'  # Permet d’exécuter le job si des fichiers de `contrib/` changent dans une PR
-      - 'scripts/**'  # Permet d’exécuter le job si des fichiers de `scripts/` changent dans une PR
+      - 'contrib/**'
+      - 'scripts/**'
 
 jobs:
   build:
