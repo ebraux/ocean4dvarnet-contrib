@@ -5,10 +5,8 @@ on:
   push:
     paths:
       - 'docs/**'
-          - 'mkdocs.yml'
-      - '/**'
-rib/- 'scripts/**'
-**'
+      - 'mkdocs.yml'
+      - 'contrib/**'
       - 'scripts/**'
 
 jobs:
