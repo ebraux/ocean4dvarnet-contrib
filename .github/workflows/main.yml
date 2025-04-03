@@ -24,9 +24,22 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: DEBUG
+      - name: Détecter les projets modifiés
+        id: filter-projects
         run: |
-          echo "modified_dirs=$(git diff --name-only HEAD~1 HEAD | grep 'contrib/' | xargs -I {} dirname {} | sort | uniq)" >> $GITHUB_ENV
+          # Obtenir la liste des sous-dossiers modifiés
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "^contrib/")
+          else
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/")
+           fi
+          # Extraire les noms de projets uniques
+          PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
+          echo "Projets détectés: $PROJECTS"
+          if [[ "$PROJECTS" != "[]" ]]; then
+            echo "deploy=true" >> $GITHUB_ENV
+          fi
 
       - name: Identify modified contrib subdirectories
         if: contains(github.event.head_commit.modified, 'contrib/')
@@ -47,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ fromJson(needs.build.outputs.modified_dirs) }}
+        dir: ${{ fromJson(needs.build.outputs.projects) }}
 
     steps:
       - name: Checkout repository
