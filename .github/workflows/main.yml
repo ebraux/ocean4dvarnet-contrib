@@ -40,26 +40,14 @@ jobs:
           PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
           echo "Projets détectés: $PROJECTS"
+          # Set deploy flag
           if [[ "$PROJECTS" != "[]" ]]; then
-            echo "deploy=true" >> $GITHUB_ENV
-          fi
-
-      - name: Identify modified contrib subdirectories
-        if: contains(github.event.head_commit.modified, 'contrib/')
-        id: changed-contrib
-        run: |
-          echo "modified_dirs=$(git diff --name-only HEAD~1 HEAD | grep 'contrib/' | xargs -I {} dirname {} | sort | uniq)" >> $GITHUB_ENV
-
-      - name: Set deploy flag
-        id: set-deploy-flag
-        run: |
-          if [[ "${{ contains(github.event.head_commit.modified, 'docs/') || contains(github.event.head_commit.modified, 'mkdocs.yml') || env.modified_dirs != '' || contains(github.event.head_commit.modified, 'scripts/') }}" == "true" ]]; then
             echo "deploy=true" >> $GITHUB_ENV
           fi
 
   contrib:
     needs: build
-    if: needs.build.outputs.modified_dirs != ''
+    if: needs.build.outputs.projects != ''
     runs-on: ubuntu-latest
     strategy:
       matrix:
