@@ -8,14 +8,16 @@ on:
       - 'mkdocs.yml'
       - 'contrib/**'
       - 'scripts/**'
-
+  pull_request:  # Ajout pour les PRs
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'contrib/**'
+      - 'contrib/**'  # Permet d’exécuter le job si des fichiers de `contrib/` changent dans une PR
+      - 'scripts/**'  # Permet d’exécuter le job si des fichiers de `scripts/` changent dans une PR
 
 jobs:
   build:
-    if: >
-      contains(join(github.event.commits.*.modified, ','), 'contrib/') ||
-      contains(join(github.event.commits.*.added, ','), 'contrib/') ||
-      contains(join(github.event.commits.*.removed, ','), 'contrib/')
     runs-on: ubuntu-latest
 
     steps:
@@ -34,11 +36,15 @@ jobs:
         run: |
           # Obtenir la liste des sous-dossiers modifiés
           if [ "${{ github.event_name }}" == "pull_request" ]; then
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "^contrib/")
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "^contrib/" || true)
           else
-            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/")
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/" || true)
           fi
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/" || true)
+          fi
+
           # Extraire les noms de projets uniques
+          echo "CHANGED_FILES: $CHANGED_FILES"
           PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
           echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
           echo "Projets détectés: $PROJECTS"
