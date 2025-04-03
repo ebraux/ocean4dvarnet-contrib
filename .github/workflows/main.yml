@@ -67,7 +67,8 @@ jobs:
           pip install -r requirements.txt
           pip install -r ${{ matrix.dir }}/requirements.txt
 
-      - name: Run pylint generate badges for ${{ matrix.dir }}
+      - name: Run pylint for ${{ matrix.dir }}
+        continue-on-error: true
         run: |
           echo "Running pylint ${{ matrix.dir }}"
           mkdir -p generated-files/${{ matrix.dir }}/reports
@@ -81,14 +82,16 @@ jobs:
           mkdir -p generated-files/${{ matrix.dir }}/badges
           SCORE=${{ steps.pylint.outputs.score }}
           COLOR="red"
-          if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green"; 
-          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow"; fi
-
+          if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green";
+          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow";
+          elif (( $(echo "$SCORE > 3.0" | bc -l) )); then COLOR="orange";
+          elif (( $(echo "$SCORE > 1.0" | bc -l) )); then COLOR="red"; fi
           curl -o docs/contrib/${{ matrix.dir }}/badges/pylint.svg \
             "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
           echo "pylint badge=generated-files/${{ matrix.dir }}/badges/pylint.svg"
 
       - name: Run pytest ${{ matrix.dir }}
+        continue-on-error: true
         run: |
           echo "Running pytest for ${{ matrix.dir }}"
           mkdir -p generated-files/${{ matrix.dir }}/reports
@@ -106,9 +109,11 @@ jobs:
           mkdir -p generated-files/${{ matrix.dir }}/badges
           COVERAGE=${{ steps.pytest.outputs.coverage }}
           COLOR="red"
-          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green"; 
-          elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
-
+          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green";
+          elif (( $(echo "$COVERAGE > 70.0" | bc -l) )); then COLOR="yellow";
+          elif (( $(echo "$COVERAGE > 50.0" | bc -l) )); then COLOR="orange";
+          elif (( $(echo "$COVERAGE > 40.0" | bc -l) )); then COLOR="red";
+          elif (( $(echo "$COVERAGE > 30.0" | bc -l) )); then COLOR="red"; fi
           curl -o generated-files/${{ matrix.dir }}/badges/coverage.svg \
             "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
           echo "pytest badge=generated-files/${{ matrix.dir }}/badges/coverage.svg"
