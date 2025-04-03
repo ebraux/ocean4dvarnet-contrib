@@ -11,7 +11,6 @@ on:
 
 jobs:
   detect-changes:
-    if: false # Désactive le workflow
     runs-on: ubuntu-latest
     outputs:
       projects: ${{ steps.filter-projects.outputs.projects }}
@@ -37,7 +36,6 @@ jobs:
           echo "Projets détectés: $PROJECTS"
 
   update-contrib:
-    if: false # Désactive le workflow
     needs: detect-changes
     runs-on: ubuntu-latest
     strategy:
@@ -70,7 +68,6 @@ jobs:
       - name: Run contribution metadatas validation
         continue-on-error: false
         run: |
-          
 
       - name: Exécuter Pylint
         id: pylint
@@ -100,7 +97,6 @@ jobs:
         run: |
           mkdir -p docs/contrib/${{ matrix.project }}/reports
           pytest --cov=. --cov-report=xml:docs/contrib/${{ matrix.project }}/reports/coverage.xml contrib/${{ matrix.project }}
-          
           # Extraire le pourcentage de couverture
           COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('docs/contrib/${{ matrix.project }}/reports/coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
           COVERAGE_PCT=$(python -c "print(round(float('${COVERAGE}') * 100, 2))")
