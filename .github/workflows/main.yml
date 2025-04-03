@@ -211,7 +211,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: generated-files-scripts
-          path: docs/scripts
+          path: generated-files-scripts
 
   merge-docs-and-update-repo:
     needs:
@@ -248,7 +248,7 @@ jobs:
            sudo apt install -y tree
            tree docs/contrib
            tree docs/scripts
-           tree generated-files-scripts
+           tree generated-files-*
            tree generated-files-scripts
 
       - name: Commit and push generated files
