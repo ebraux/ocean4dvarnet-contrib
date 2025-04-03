@@ -132,6 +132,11 @@ jobs:
           name: generated-files-${{ matrix.dir }}
           path: generated-files/${{ matrix.dir }}
 
+      - name: Enable artifact management
+        run:
+          echo "artifact-contrib=true" >> $GITHUB_ENV
+
+
   scripts:
     # if: >
     #   contains(join(github.event.commits.*.modified, ','), 'scripts/') ||
@@ -213,6 +218,11 @@ jobs:
           name: generated-files-scripts
           path: generated-files-scripts
 
+      - name: Enable artifact management
+        run:
+          echo "artifact-script=true" >> $GITHUB_ENV
+
+
   merge-docs-and-update-repo:
     needs:
       - contrib
@@ -225,18 +235,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download generated files for contrib
+        if: needs.contrib.outputs.artifact-contrib == 'true'
         uses: actions/download-artifact@v4
         with:
           name: generated-files-*
           path: docs/contrib/
-          if-no-files-found: ignore  # Ignore l'erreur si aucun artifact n'est trouvé
-
+        
       - name: Download generated files for scripts
+        if: needs.script.outputs.artifact-script == 'true'
         uses: actions/download-artifact@v4
         with:
           name: generated-files-scripts/*
           path: docs/scripts/
-          if-no-files-found: ignore  # Ignore l'erreur si aucun artifact n'est trouvé
 
       - name: Generate documentation for contrib
         run: |
