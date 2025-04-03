@@ -12,7 +12,10 @@ on:
 
 jobs:
   build:
-    if: github.actor != 'github-actions[bot]'
+    if: >
+      contains(join(github.event.commits.*.modified, ','), 'contrib/') ||
+      contains(join(github.event.commits.*.added, ','), 'contrib/') ||
+      contains(join(github.event.commits.*.removed, ','), 'contrib/')
     runs-on: ubuntu-latest
 
     steps:
@@ -21,13 +24,12 @@ jobs:
         with:
           fetch-depth: 0  # Nécessaire pour obtenir tous les changements
 
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
 
-      - name: Détecter les projets modifiés
+      - name: Détecter les projets modifiés dans contrib
         id: filter-projects
         run: |
           # Obtenir la liste des sous-dossiers modifiés
@@ -127,10 +129,10 @@ jobs:
           path: generated-files/${{ matrix.dir }}
 
   scripts:
-    if: >
-      contains(join(github.event.commits.*.modified, ','), 'scripts/') ||
-      contains(join(github.event.commits.*.added, ','), 'scripts/') ||
-      contains(join(github.event.commits.*.removed, ','), 'scripts/')
+    # if: >
+    #   contains(join(github.event.commits.*.modified, ','), 'scripts/') ||
+    #   contains(join(github.event.commits.*.added, ','), 'scripts/') ||
+    #   contains(join(github.event.commits.*.removed, ','), 'scripts/')
     runs-on: ubuntu-latest
 
     steps:
