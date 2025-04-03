@@ -1,0 +1,227 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - 'contrib/**'
+      - 'scripts/**'
+
+jobs:
+  build:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # install global dependencies
+          pip install -r requirements.txt
+
+      - name: Identify modified contrib subdirectories
+        if: contains(github.event.head_commit.modified, 'contrib/')
+        id: changed-contrib
+        run: |
+          echo "modified_dirs=$(git diff --name-only HEAD~1 HEAD | grep 'contrib/' | xargs -I {} dirname {} | sort | uniq)" >> $GITHUB_ENV
+
+      - name: Set deploy flag
+        id: set-deploy-flag
+        run: |
+          if [[ "${{ contains(github.event.head_commit.modified, 'docs/') || contains(github.event.head_commit.modified, 'mkdocs.yml') || env.modified_dirs != '' || contains(github.event.head_commit.modified, 'scripts/') }}" == "true" ]]; then
+            echo "deploy=true" >> $GITHUB_ENV
+          fi
+
+  contrib:
+    needs: build
+    if: needs.build.outputs.modified_dirs != ''
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir: ${{ fromJson(needs.build.outputs.modified_dirs) }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install specific dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r ${{ matrix.dir }}/requirements.txt
+
+      - name: Run pylint generate badges for ${{ matrix.dir }}
+        run: |
+          echo "Running pylint ${{ matrix.dir }}"
+          mkdir -p generated-files/${{ matrix.dir }}/reports
+          SCORE=$(pylint --output-format=text *.py **/*.py contrib/${{ matrix.dir }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "Score Pylint: $SCORE/10"
+
+      - name: Generate pylint badges for ${{ matrix.dir }}
+        run: |
+          echo "Generating pylint badges for ${{ matrix.dir }}"
+          mkdir -p generated-files/${{ matrix.dir }}/badges
+          SCORE=${{ steps.pylint.outputs.score }}
+          COLOR="red"
+          if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green"; 
+          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow"; fi
+
+          curl -o docs/contrib/${{ matrix.dir }}/badges/pylint.svg \
+            "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
+          echo "pylint badge=generated-files/${{ matrix.dir }}/badges/pylint.svg"
+
+      - name: Run pytest ${{ matrix.dir }}
+        run: |
+          echo "Running pytest for ${{ matrix.dir }}"
+          mkdir -p generated-files/${{ matrix.dir }}/reports
+          pytest --cov=. --cov-report=xml:generated-files/${{ matrix.dir }}/reports/coverage.xml contrib/${{ matrix.dir }}
+
+          # Extraire le pourcentage de couverture
+          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('generated-files/${{ matrix.dir }}/reports/coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
+          COVERAGE_PCT=$(python -c "print(round(float('${COVERAGE}') * 100, 2))")
+          echo "coverage=$COVERAGE_PCT" >> $GITHUB_OUTPUT
+          echo "Couverture de test: $COVERAGE_PCT%"
+
+      - name: Generate cov badges for ${{ matrix.dir }}
+        run: |
+          echo "Generating COV badges for ${{ matrix.dir }}"
+          mkdir -p generated-files/${{ matrix.dir }}/badges
+          COVERAGE=${{ steps.pytest.outputs.coverage }}
+          COLOR="red"
+          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green"; 
+          elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
+
+          curl -o generated-files/${{ matrix.dir }}/badges/coverage.svg \
+            "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
+          echo "pytest badge=generated-files/${{ matrix.dir }}/badges/coverage.svg"
+
+      - name: Generate documentation for ${{ matrix.dir }}
+        run: |
+          echo "Generating documentation for ${{ matrix.dir }}"
+          python scripts/generate_contrib_docs.py ${{ matrix.dir }}
+          mv docs/contrib/${{ matrix.dir }}/README.md generated-files/${{ matrix.dir }}
+
+      - name: Upload generated files
+        uses: actions/upload-artifact@v3
+        with:
+          name: generated-files-${{ matrix.dir }}
+          path: generated-files/${{ matrix.dir }}
+
+  scripts:
+    if: contains(join(github.event.commits.*.modified, github.event.commits.*.added, github.event.commits.*.removed), 'scripts/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mkdocs
+
+      - name: Run pytest for scripts
+        run: |
+          echo "Running pytest for scripts"
+          mkdir -p generated-files-scripts/reports
+          pytest --cov=. --cov-report=xml:generated-files-scripts/reports/coverage.xml scripts/
+          # Extract coverage percentage
+          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('generated-files-scripts/reports/coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
+          COVERAGE_PCT=$(python -c "print(round(float('${COVERAGE}') * 100, 2))")
+          echo "coverage=$COVERAGE_PCT" >> $GITHUB_OUTPUT
+          echo "Test coverage: $COVERAGE_PCT%"
+
+      - name: Generate cov badges for scripts
+        run: |
+          echo "Generating COV badges for scripts"
+          mkdir -p generated-files-scripts/badges
+          COVERAGE=${{ steps.pytest.outputs.coverage }}
+          COLOR="red"
+          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green";
+          elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
+          curl -o generated-files-scripts/badges/coverage.svg \
+            "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
+          echo "pytest badge=generated-files-scripts/badges/coverage.svg"
+
+      - name: Enable mkdocs generation
+        run:
+          echo "deploy=true" >> $GITHUB_ENV
+
+  merge-docs-and-update-repo:
+    needs:
+      - contrib
+      - scripts
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download generated files for contrib
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-files-*
+          path: docs/contrib/
+
+      - name: Download generated files for scripts
+        uses: actions/download-artifact@v3
+        with:
+          name: generated-files-scripts/*
+          path: docs/scripts/
+
+      - name: Generate documentation for contrib
+        run: |
+          echo "Generating documentation for contrib"
+          python scripts/manage_contrib_list.py
+
+      - name: debug
+        run: |
+           sudo apt install -y tree
+           tree docs/contrib
+           tree docs/scripts
+           tree generated-files-scripts
+           tree generated-files-scripts
+
+      - name: Commit and push generated files
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update generated files by CI"
+          file_pattern: |
+            docs/contrib/**
+            docs/scripts/**
+
+  update-mkdocs:
+    if: always()
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy MkDocs to GitHub Pages
+        if: needs.build.outputs.deploy == 'true'
+        run: |
+          mkdocs gh-deploy --force
+
+

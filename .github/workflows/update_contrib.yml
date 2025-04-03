@@ -11,6 +11,7 @@ on:
 
 jobs:
   detect-changes:
+    if: false # Désactive le workflow
     runs-on: ubuntu-latest
     outputs:
       projects: ${{ steps.filter-projects.outputs.projects }}
@@ -28,7 +29,7 @@ jobs:
             CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "^contrib/")
           else
             CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/")
-          fi
+           fi
 
           # Extraire les noms de projets uniques
           PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
@@ -36,6 +37,7 @@ jobs:
           echo "Projets détectés: $PROJECTS"
 
   update-contrib:
+    if: false # Désactive le workflow
     needs: detect-changes
     runs-on: ubuntu-latest
     strategy:
@@ -68,7 +70,7 @@ jobs:
       - name: Run contribution metadatas validation
         continue-on-error: false
         run: |
-          python scripts/validate_contrib_metadatas.py ${{ matrix.project }}
+          
 
       - name: Exécuter Pylint
         id: pylint
