@@ -61,16 +61,20 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install specific dependencies
+      - name: Install Global dependencies
         run: |
           python -m pip install --upgrade pip
+          # Installer les dépendances globales
           pip install -r requirements.txt
-          pip install -r ${{ matrix.dir }}/requirements.txt
+
+      - name: Install specific dependencies
+        run: pip install -r ${{ matrix.dir }}/requirements.txt
 
       - name: Run pylint for ${{ matrix.dir }}
         continue-on-error: true
         run: |
           echo "Running pylint ${{ matrix.dir }}"
+          pip install pylint
           mkdir -p generated-files/${{ matrix.dir }}/reports
           SCORE=$(pylint --output-format=text *.py **/*.py contrib/${{ matrix.dir }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
           echo "score=$SCORE" >> $GITHUB_OUTPUT
@@ -94,6 +98,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "Running pytest for ${{ matrix.dir }}"
+          pip install pytest pytest-cov
           mkdir -p generated-files/${{ matrix.dir }}/reports
           pytest --cov=. --cov-report=xml:generated-files/${{ matrix.dir }}/reports/coverage.xml contrib/${{ matrix.dir }}
 
@@ -148,12 +153,39 @@ jobs:
 
       - name: Install Global dependencies
         run: |
+          python -m pip install --upgrade pip
           # Installer les dépendances globales
           pip install -r requirements.txt
 
+      - name: Run pylint for scripts
+        continue-on-error: true
+        run: |
+          echo "Running pylint for scripts"
+          pip install -y pylint
+          mkdir -p generated-files-scripts/reports
+          SCORE=$(pylint --output-format=text *.py **/*.py scripts }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          echo "Score Pylint: $SCORE/10"
+
+      - name: Generate pylint badges for scripts
+        run: |
+          echo "Generating pylint badges for scripts"
+          mkdir -p generated-files-scripts/badges
+          SCORE=${{ steps.pylint.outputs.score }}
+          COLOR="red"
+          if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green";
+          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow";
+          elif (( $(echo "$SCORE > 3.0" | bc -l) )); then COLOR="orange";
+          elif (( $(echo "$SCORE > 1.0" | bc -l) )); then COLOR="red"; fi
+          curl -o docs/contrib/${{ matrix.dir }}/badges/pylint.svg \
+            "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
+          echo "pylint badge=generated-files-scripts/badges/pylint.svg"
+
       - name: Run pytest for scripts
+        continue-on-error: true
         run: |
           echo "Running pytest for scripts"
+          pip install pytest pytest-cov
           mkdir -p generated-files-scripts/reports
           pytest --cov=. --cov-report=xml:generated-files-scripts/reports/coverage.xml scripts/
           # Extract coverage percentage
