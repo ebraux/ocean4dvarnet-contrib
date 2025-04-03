@@ -6,6 +6,7 @@ import scipy.interpolate
 import collections
 import src.data
 
+# test 4
 TrainingItemWithInit = collections.namedtuple(
     "TrainingItemWithInit", sorted(["init", "input", "tgt"])
 )

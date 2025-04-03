@@ -132,7 +132,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Mise à jour des fichiers pour ${{ matrix.project }}"
-          file_pattern: docs/contrib/${{ matrix.project }}/**/* docs/contrib/index.md
+          file_pattern: docs/contrib/${{ matrix.project }}/**/* docs/contrib/README.md
           branch: ${{ github.ref }}
 
       - name: Build and Deploy
