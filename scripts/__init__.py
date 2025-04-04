@@ -1,8 +1,6 @@
 """
 Scripts module for managing contributions.
 
-test 58
-
 This module contains scripts for:
 
 - Initializing new contributions (`init.py`)
@@ -10,3 +8,4 @@ This module contains scripts for:
 - Creating README files for contributions (`create_readme.py`)
 - Creating metadata files for contributions (`create_metadatas.py`)
 """
+# test 59

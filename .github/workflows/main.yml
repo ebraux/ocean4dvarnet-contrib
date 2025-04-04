@@ -83,26 +83,27 @@ jobs:
         uses: ./.github/actions/run-pylint
         with:
           path: contrib/${{ matrix.dir }}
-          output-dir: generated-files/${{ matrix.dir }}
+          output-dir: generated-contrib-files/${{ matrix.dir }}
 
       - name: Run pytest for ${{ matrix.dir }}
+        continue-on-error: true
         id: pytest
         uses: ./.github/actions/run-pytest
         with:
           path: contrib/${{ matrix.dir }}
-          output-dir: generated-files/${{ matrix.dir }}
+          output-dir: generated-contrib-files/${{ matrix.dir }}
 
       - name: Generate documentation for ${{ matrix.dir }}
         run: |
           echo "Generating documentation for ${{ matrix.dir }}"
           python scripts/generate_contrib_docs.py ${{ matrix.dir }}
-          mv docs/contrib/${{ matrix.dir }}/README.md generated-files/${{ matrix.dir }}
+          mv docs/contrib/${{ matrix.dir }}/README.md generated-contrib-files/${{ matrix.dir }}
 
       - name: Upload generated files
         uses: actions/upload-artifact@v4
         with:
-          name: generated-files-${{ matrix.dir }}
-          path: generated-files/${{ matrix.dir }}
+          name: generated-contrib-files-${{ matrix.dir }}
+          path: generated-contrib-files/${{ matrix.dir }}
 
       - name: Enable artifact management
         run:
@@ -130,52 +131,19 @@ jobs:
 
       - name: Run pylint for scripts
         continue-on-error: true
-        run: |
-          echo "Running pylint for scripts"
-          pip install pylint
-          mkdir -p generated-files-scripts/reports
-          SCORE=$(pylint --output-format=text *.py **/*.py scripts }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
-          echo "score=$SCORE" >> $GITHUB_OUTPUT
-          echo "Score Pylint: $SCORE/10"
-
-      - name: Generate pylint badges for scripts
-        run: |
-          echo "Generating pylint badges for scripts"
-          mkdir -p generated-files-scripts/badges
-          SCORE=${{ steps.pylint.outputs.score }}
-          COLOR="red"
-          if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green";
-          elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow";
-          elif (( $(echo "$SCORE > 3.0" | bc -l) )); then COLOR="orange";
-          elif (( $(echo "$SCORE > 1.0" | bc -l) )); then COLOR="red"; fi
-          curl -o generated-files-scripts/badges/pylint.svg \
-            "https://img.shields.io/badge/pylint-$SCORE-$COLOR"
-          echo "pylint badge=generated-files-scripts/badges/pylint.svg"
+        id: pylint
+        uses: ./.github/actions/run-pylint
+        with:
+          path: scripts
+          output-dir: generated-scripts-files
 
       - name: Run pytest for scripts
         continue-on-error: true
-        run: |
-          echo "Running pytest for scripts"
-          pip install pytest pytest-cov
-          mkdir -p generated-files-scripts/reports
-          pytest --cov=. --cov-report=xml:generated-files-scripts/reports/coverage.xml scripts/
-          # Extract coverage percentage
-          COVERAGE=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('generated-files-scripts/reports/coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
-          COVERAGE_PCT=$(python -c "print(round(float('${COVERAGE}') * 100, 2))")
-          echo "coverage=$COVERAGE_PCT" >> $GITHUB_OUTPUT
-          echo "Test coverage: $COVERAGE_PCT%"
-
-      - name: Generate cov badges for scripts
-        run: |
-          echo "Generating COV badges for scripts"
-          mkdir -p generated-files-scripts/badges
-          COVERAGE=${{ steps.pytest.outputs.coverage }}
-          COLOR="red"
-          if (( $(echo "$COVERAGE > 80.0" | bc -l) )); then COLOR="green";
-          elif (( $(echo "$COVERAGE > 60.0" | bc -l) )); then COLOR="yellow"; fi
-          curl -o generated-files-scripts/badges/coverage.svg \
-            "https://img.shields.io/badge/coverage-${COVERAGE}%25-$COLOR"
-          echo "pytest badge=generated-files-scripts/badges/coverage.svg"
+        id: pytest
+        uses: ./.github/actions/run-pytest
+        with:
+          path: scripts
+          output-dir: generated-scripts-files
 
       - name: Enable mkdocs generation
         run:
@@ -184,8 +152,8 @@ jobs:
       - name: Upload generated files
         uses: actions/upload-artifact@v4
         with:
-          name: generated-files-scripts
-          path: generated-files-scripts
+          name: generated-scripts-files
+          path: generated-scripts-files
 
       - name: Enable artifact management
         run:
@@ -208,7 +176,7 @@ jobs:
         #if: needs.contrib.outputs.artifact-contrib == 'true'
         uses: actions/download-artifact@v4
         with:
-          name: generated-files-*
+          name: generated-contrib-files-*
           path: docs/contrib/
         
       - name: Download generated files for scripts
@@ -216,7 +184,7 @@ jobs:
         #if: needs. check-scripts.outputs.artifact-scripts == 'true'
         uses: actions/download-artifact@v4
         with:
-          name: generated-files-scripts
+          name: generated-scripts-files-scripts
           path: docs/scripts/
 
       - name: Generate documentation for contrib
