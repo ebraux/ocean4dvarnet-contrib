@@ -167,6 +167,7 @@ jobs:
 
   merge-docs-and-update-repo:
     needs:
+      - check-contribs
       - contrib
       - check-scripts
     if: always()
