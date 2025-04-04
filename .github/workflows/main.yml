@@ -166,19 +166,22 @@ jobs:
       - check-scripts
     if: always()
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir: ${{ fromJson(needs.check-contribs.outputs.projects) }}  # Liste dynamique des projets
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download generated files for contrib
+
+      - name: Download artifact for dynamic project ${{ matrix.dir }}
         continue-on-error: true
-        #if: needs.contrib.outputs.artifact-contrib == 'true'
         uses: actions/download-artifact@v4
         with:
-          name: generated-contrib-files-*
-          path: docs/contrib/
-          merge-multiple: true
+          name: generated-contrib-files-${{ matrix.dir }}  # Utilisation du nom dynamique basé sur la matrice
+          path: docs/contrib/${{ matrix.dir }}  # Télécharger l'artefact dans docs/contrib/{project}        
+
         
       - name: Download generated files for scripts
         continue-on-error: true
