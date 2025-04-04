@@ -24,10 +24,15 @@ runs:
       id: get-score
       run: |
         mkdir -p ${{ inputs.output-dir }}/reports
-        SCORE=$(pylint ${{ inputs.path }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
+        SCORE=$(pylint ${{ inputs.path }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0.0")
+        SCORE=$(echo $SCORE | tr -d '\r\n')
+        if ! [[ "$SCORE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+          SCORE="0.0"
+        fi
         echo "score=$SCORE" >> $GITHUB_OUTPUT
+        echo "Pylint score: $SCORE"
       shell: bash
-
+  
     - name: Generate Pylint Badge
       run: |
         SCORE=${{ steps.get-score.outputs.score }}
