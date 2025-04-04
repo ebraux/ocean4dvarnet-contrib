@@ -76,7 +76,7 @@ dependencies: ""
     print(f"Created tests directory in {contrib_path}")
 
     # Create tests/tests_CONTRIB_NAME.py
-    test_path = os.path.join(contrib_path, 'tests/test_' name, '.py')
+    test_path = os.path.join(contrib_path, f'tests/test_{name}.py')
     with open(test_path, 'w', encoding='utf-8') as test_file:
         code_file.write(f"\"\"\"tests for ocean4dvarnet contribution {name}\"\"\"\n")
     print(f"Created tests/test_{name}.py in {contrib_path}")

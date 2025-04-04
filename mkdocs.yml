@@ -18,7 +18,7 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          paths: ["contrib"]
+          paths: ["contrib", "scripts"]
           options:
             show_source: true
             docstring_style: google
