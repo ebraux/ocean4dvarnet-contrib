@@ -14,9 +14,9 @@ import os
 import sys
 import yaml
 
-CONTRIB_DIR = "./contrib"
-DOCS_DIR = "./docs/contrib"
-INDEX_FILE = "./docs/contrib/index.md"
+CONTRIB_DIR = "contrib"
+DOCS_DIR = "docs/contrib"
+INDEX_FILE = "docs/contrib/index.md"
 
 def generate_markdown_for_contrib(contrib_name):
     """
@@ -69,7 +69,7 @@ def generate_markdown_for_contrib(contrib_name):
         for file in os.listdir(subdir_path):
             if file.endswith(".py") and file != "__init__.py":
                 file_name_without_extension = os.path.splitext(file)[0]
-                md_file.write(f"::: {contrib_name}.{file_name_without_extension}\n")
+                md_file.write(f"::: {CONTRIB_DIR}.{contrib_name}.{file_name_without_extension}\n")
 
     print(f"Generated Markdown file: {markdown_file}")
 

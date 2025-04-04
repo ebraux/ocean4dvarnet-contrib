@@ -12,8 +12,8 @@
 | dependencies |  |
 
 ----------------------------------------
-::: ose_training.data
-::: ose_training.models
-::: ose_training.utils
-::: ose_training.multimodal
-::: ose_training.data_processing
+::: contrib.ose_training.data
+::: contrib.ose_training.models
+::: contrib.ose_training.utils
+::: contrib.ose_training.multimodal
+::: contrib.ose_training.data_processing

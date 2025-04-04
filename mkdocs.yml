@@ -14,19 +14,23 @@ theme:
 
 plugins:
   - search
+  #- dotenv
   - mkdocstrings:
       handlers:
         python:
+          paths: [".."]
           options:
-            show_source: false
+            show_source: true
             docstring_style: google
-  - gen-files:
-      scripts:
-        - scripts/generate_contrib_docs.py
+            
+  # - gen-files:
+  #     scripts:
+  #       - scripts/generate_contrib_docs.py
 
 nav:
   - Home: index.md
-  - Contributions: api/index.md
+  - Contributions: contrib/index.md
+  - Tools: scripts/index.md
 
 markdown_extensions:
   - pymdownx.highlight
