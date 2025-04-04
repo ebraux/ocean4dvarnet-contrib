@@ -1,0 +1,20 @@
+name: "Install Python dependencies"
+description: "Install pip dependencies (global and local)"
+inputs:
+  path:
+    description: "Path to requirements.txt"
+    required: false
+    default: "requirements.txt"
+
+runs:
+  using: "composite"
+  steps:
+    - run: |
+        python -m pip install --upgrade pip
+        if [ -f "${{ inputs.path }}" ]; then
+          echo "Installing dependencies from ${{ inputs.path }}"
+          pip install -r ${{ inputs.path }}
+        else
+          echo "No requirements.txt found at ${{ inputs.path }}, skipping."
+        fi
+      shell: bash

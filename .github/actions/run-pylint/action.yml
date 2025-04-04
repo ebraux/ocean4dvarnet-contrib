@@ -1,0 +1,41 @@
+name: "Run Pylint"
+description: "Run pylint and generate badge"
+inputs:
+  path:
+    description: "Target directory"
+    required: true
+  output-dir:
+    description: "Where to put reports/badges"
+    required: true
+
+outputs:
+  score:
+    description: "Pylint score"
+    value: ${{ steps.get-score.outputs.score }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Pylint
+      run: pip install pylint
+      shell: bash
+
+    - name: Run Pylint
+      id: get-score
+      run: |
+        mkdir -p ${{ inputs.output-dir }}/reports
+        SCORE=$(pylint ${{ inputs.path }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
+        echo "score=$SCORE" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Generate Pylint Badge
+      run: |
+        SCORE=${{ steps.get-score.outputs.score }}
+        COLOR="red"
+        if (( $(echo "$SCORE > 7.0" | bc -l) )); then COLOR="green";
+        elif (( $(echo "$SCORE > 5.0" | bc -l) )); then COLOR="yellow";
+        elif (( $(echo "$SCORE > 3.0" | bc -l) )); then COLOR="orange"; fi
+        mkdir -p ${{ inputs.output-dir }}/badges
+        curl -o ${{ inputs.output-dir }}/badges/pylint.svg \
+          "https://img.shields.io/badge/pylint-${SCORE}-${COLOR}"
+      shell: bash
