@@ -10,7 +10,7 @@ on:
       - 'scripts/**'
 
 jobs:
-  build:
+  check-contribs:
     runs-on: ubuntu-latest
 
     steps:
@@ -45,12 +45,12 @@ jobs:
           fi
 
   contrib:
-    needs: build
-    if: needs.build.outputs.projects != ''
+    needs: check-contribs
+    if: needs.check-contribs.outputs.projects != ''
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ fromJson(needs.build.outputs.projects) }}
+        dir: ${{ fromJson(needs.check-contribs.outputs.projects) }}
 
     steps:
       - name: Checkout repository
@@ -137,7 +137,7 @@ jobs:
           echo "artifact-contrib=true" >> $GITHUB_ENV
 
 
-  scripts:
+  check-scripts:
     # if: >
     #   contains(join(github.event.commits.*.modified, ','), 'scripts/') ||
     #   contains(join(github.event.commits.*.added, ','), 'scripts/') ||
@@ -163,7 +163,7 @@ jobs:
         continue-on-error: true
         run: |
           echo "Running pylint for scripts"
-          pip install -y pylint
+          pip install pylint
           mkdir -p generated-files-scripts/reports
           SCORE=$(pylint --output-format=text *.py **/*.py scripts }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0")
           echo "score=$SCORE" >> $GITHUB_OUTPUT
@@ -226,7 +226,7 @@ jobs:
   merge-docs-and-update-repo:
     needs:
       - contrib
-      - scripts
+      - check-scripts
     if: always()
     runs-on: ubuntu-latest
 
@@ -244,7 +244,7 @@ jobs:
         
       - name: Download generated files for scripts
         continue-on-error: true
-        #if: needs.scripts.outputs.artifact-scripts == 'true'
+        #if: needs. check-scripts.outputs.artifact-scripts == 'true'
         uses: actions/download-artifact@v4
         with:
           name: generated-files-scripts
@@ -292,7 +292,7 @@ jobs:
            tree docs
 
       - name: Deploy MkDocs to GitHub Pages
-        if: needs.build.outputs.deploy == 'true'
+        #if: needs.check-contribs.outputs.deploy == 'true'
         run: |
           mkdocs gh-deploy --force
 
