@@ -182,7 +182,7 @@ jobs:
       - check-scripts
     if: always()
     runs-on: ubuntu-latest
-    strategy:
+    # strategy:
       # matrix:
       #   dir: ${{ fromJson(needs.check-contribs.outputs.projects || '[]') }}  # Liste dynamique des projets
 
