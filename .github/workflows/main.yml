@@ -209,13 +209,13 @@ jobs:
       #     name: generated-contrib-files-${{ matrix.dir }}  # Utilisation du nom dynamique basé sur la matrice
       #     path: docs/contrib/${{ matrix.dir }}  # Télécharger l'artefact dans docs/contrib/{project}        
 
-      - name: Install GitHub CLI
-        if: ${{ needs.check-contribs.outputs.projects != '[]' }}
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
-          sudo apt update
-          sudo apt install gh
+      # - name: Install GitHub CLI
+      #   if: ${{ needs.check-contribs.outputs.projects != '[]' }}
+      #   run: |
+      #     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+      #     sudo apt-add-repository https://cli.github.com/packages
+      #     sudo apt update
+      #     sudo apt install gh
 
       - name: Download all contrib artifacts
         if: ${{ needs.check-contribs.outputs.projects != '[]' }}
