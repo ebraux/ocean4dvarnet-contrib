@@ -3,8 +3,7 @@ This script generates a Markdown file for a specific subdirectory in the 'contri
 
 The subdirectory name is passed as a parameter. The script generates a Markdown file
 named after the subdirectory and contains a line for each Python file (*.py) in the subdirectory,
-formatted as:
-::: {SUBDIRECTORY_NAME} .{PYTHON_FILE_NAME}
+formatted as: `\:\:\: {SUBDIRECTORY_NAME} .{PYTHON_FILE_NAME}`
 
 The script ignores the `__init__.py` files and also updates an `index.md` file
 with a link to the generated Markdown file.
