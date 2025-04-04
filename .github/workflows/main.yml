@@ -178,13 +178,14 @@ jobs:
         with:
           name: generated-contrib-files-*
           path: docs/contrib/
+          merge-multiple: true
         
       - name: Download generated files for scripts
         continue-on-error: true
         #if: needs. check-scripts.outputs.artifact-scripts == 'true'
         uses: actions/download-artifact@v4
         with:
-          name: generated-scripts-files-scripts
+          name: generated-scripts-files
           path: docs/scripts/
 
       - name: Generate documentation for contrib
