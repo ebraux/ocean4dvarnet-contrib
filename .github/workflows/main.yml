@@ -115,8 +115,7 @@ jobs:
         run: |
           echo "artifact-contrib=true" >> $GITHUB_ENV
           echo "artifact-contrib=true" >> $GITHUB_OUTPUT
-        run:
-          echo "artifact-contrib=true" >> $GITHUB_ENV
+
 
 
   check-scripts:
@@ -169,8 +168,7 @@ jobs:
         run: |
           echo "artifact-scripts=true" >> $GITHUB_ENV
           echo "artifact-scripts=true" >> $GITHUB_OUTPUT
-        run:
-          echo "artifact-scripts=true" >> $GITHUB_ENV
+        
 
 
   merge-docs-and-update-repo:
