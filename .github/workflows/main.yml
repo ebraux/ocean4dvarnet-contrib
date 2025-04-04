@@ -12,6 +12,8 @@ on:
 jobs:
   check-contribs:
     runs-on: ubuntu-latest
+    outputs:
+      projects: ${{ steps.filter-projects.outputs.projects }}
 
     steps:
       - name: Checkout repository
@@ -53,6 +55,11 @@ jobs:
         dir: ${{ fromJson(needs.check-contribs.outputs.projects) }}
 
     steps:
+
+      - name: Debug matrix
+        run: |
+          echo "Projects from check-contribs: ${{ needs.check-contribs.outputs.projects }}"      
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -60,6 +67,7 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.12'
+
 
       - name: Install Global dependencies
         run: |
