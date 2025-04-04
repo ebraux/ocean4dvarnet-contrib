@@ -68,8 +68,14 @@ def generate_markdown_for_contrib(contrib_name):
         # List all Python files in the subdirectory, excluding `__init__.py`
         for file in os.listdir(subdir_path):
             if file.endswith(".py") and file != "__init__.py":
-                file_name_without_extension = os.path.splitext(file)[0]
-                md_file.write(f"::: {CONTRIB_DIR}.{contrib_name}.{file_name_without_extension}\n")
+            file_name_without_extension = os.path.splitext(file)[0]
+            md_file.write(f"- [file_name_without_extension](./{file_name_without_extension}.md\n")
+
+            # Create a new Markdown file for each Python file
+            new_md_file_path = os.path.join(docdir_path, f"{file_name_without_extension}.md")
+            with open(new_md_file_path, 'w', encoding='utf-8') as new_md_file:
+                new_md_file.write(f"# {contrib_name}.{file_name_without_extension}\n")
+                new_md_file.write(f"::: {CONTRIB_DIR}.{contrib_name}.{file_name_without_extension}\n")
 
     print(f"Generated Markdown file: {markdown_file}")
 

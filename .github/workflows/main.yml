@@ -177,7 +177,7 @@ jobs:
 
   merge-docs-and-update-repo:
     needs:
-      # - check-contribs  # to get project matrix
+       - check-contribs  # to get project matrix
       - contrib
       - check-scripts
     if: always()
@@ -193,7 +193,7 @@ jobs:
       # - name: Debug matrix
       #   run: |
       #     echo "Projects from check-contribs: ${{ needs.check-contribs.outputs.projects }}"
-      #     echo "Project from matrix: ${{ matrix.dir }}"
+      # #     echo "Project from matrix: ${{ matrix.dir }}"
       #     echo "Contribs Artifact :  ${{ needs.contrib.outputs.artifact-contrib}}"
       #     echo "Scripts Artifact :  ${{ needs.check-scripts.outputs.artifact-scripts}}"
 
@@ -209,13 +209,28 @@ jobs:
       #     name: generated-contrib-files-${{ matrix.dir }}  # Utilisation du nom dynamique basé sur la matrice
       #     path: docs/contrib/${{ matrix.dir }}  # Télécharger l'artefact dans docs/contrib/{project}        
 
-      - name: Download all artifacts
-        continue-on-error: true
-        uses: actions/download-artifact@v4
-        with:
-          name: generated-contrib-files-*
-          path: docs/contrib
-          
+      - name: Install GitHub CLI
+        if: ${{ needs.check-contribs.outputs.projects != '[]' }}
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
+
+      - name: Download all contrib artifacts
+        if: ${{ needs.check-contribs.outputs.projects != '[]' }}
+        run: |
+          echo "Projects list: ${{ needs.check-contribs.outputs.projects }}"
+          PROJECTS=$(echo '${{ needs.check-contribs.outputs.projects }}' | jq -r '.[]')
+      
+          for project in $PROJECTS; do
+          echo "Downloading artifact for $project"
+          gh run download --name "generated-contrib-files-$project" --dir "docs/contrib/$project" || echo "No artifact found for $project"
+          done
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+         
+
       - name: Download generated files for scripts
         continue-on-error: true
         #if: needs. check-scripts.outputs.artifact-scripts == 'true'
