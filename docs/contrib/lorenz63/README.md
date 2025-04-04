@@ -12,5 +12,5 @@
 | dependencies |  |
 
 ----------------------------------------
-::: contrib.lorenz63.data
-::: contrib.lorenz63.models
+::: lorenz63.data
+::: lorenz63.models
