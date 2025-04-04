@@ -52,9 +52,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ fromJson(needs.check-contribs.outputs.projects) }}
+        dir: ${{ fromJson(needs.check-contribs.outputs.projects || '[]') }}  # Liste dynamique des projets
 
     steps:
+
+      - name: Debug matrix
+        run: |
+          echo "Projects from check-contribs: ${{ needs.check-contribs.outputs.projects }}"
+          echo "Project from matrix: ${{ matrix.dir }}"
 
       - name: Debug matrix
         run: |
@@ -168,7 +173,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dir: ${{ fromJson(needs.check-contribs.outputs.projects) }}  # Liste dynamique des projets
+        dir: ${{ fromJson(needs.check-contribs.outputs.projects || '[]') }}  # Liste dynamique des projets
 
     steps:
       - name: Checkout repository
