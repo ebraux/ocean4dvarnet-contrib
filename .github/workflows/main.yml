@@ -177,7 +177,7 @@ jobs:
 
   merge-docs-and-update-repo:
     needs:
-       - check-contribs  # to get project matrix
+      - check-contribs  # to get project matrix
       - contrib
       - check-scripts
     if: always()
