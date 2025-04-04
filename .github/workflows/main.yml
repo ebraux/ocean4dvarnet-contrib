@@ -45,6 +45,10 @@ jobs:
           if [[ "$PROJECTS" != "[]" ]]; then
             echo "deploy=true" >> $GITHUB_ENV
           fi
+# TODO : 
+#  - ajouter un test d'existance du dossier, car en cas de suppression, il fait partie de la liste des
+#     projets modifiés, mais n'existe plus dans le repo
+
 
   contrib:
     needs: check-contribs
@@ -55,6 +59,8 @@ jobs:
         dir: ${{ fromJson(needs.check-contribs.outputs.projects || '[]') }}  # Liste dynamique des projets
     outputs:
       artifact-contrib: ${{ steps.set-artifact-contrib.outputs.artifact-contrib }}
+
+
 
     steps:
 
