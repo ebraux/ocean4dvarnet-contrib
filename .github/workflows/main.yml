@@ -110,6 +110,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: generated-contrib-files-${{ matrix.dir }}
+          path: generated-contrib-files/${{ matrix.dir }}
+
       - name: Enable artifact management
         id: set-artifact-contrib
         run: |
@@ -163,6 +165,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: generated-scripts-files
+          path: generated-scripts-files
+
       - name: Enable artifact management
         id: set-artifact-scripts
         run: |
