@@ -25,6 +25,7 @@ runs:
           sudo apt install -y tree
           tree ${{ inputs.path }}
           pylint ${{ inputs.path }}
+          SCORE=$(pylint ${{ inputs.path }} 2>/dev/null)
       shell: bash
 
 
