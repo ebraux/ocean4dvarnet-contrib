@@ -58,7 +58,7 @@ jobs:
           # Définir le flag de déploiement si des projets sont détectés
           if [[ "$FILTERED_PROJECTS" != "[]" ]]; then
             echo "deploy=true" >> $GITHUB_ENV
-
+          fi
 
   contrib:
     needs: check-contribs
