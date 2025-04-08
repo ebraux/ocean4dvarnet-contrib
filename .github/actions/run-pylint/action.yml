@@ -34,7 +34,8 @@ runs:
       id: get-score
       run: |
         # Run pylint and extract the score
-        SCORE=$(pylint ${{ inputs.path }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)")
+        SCORE=$(pylint "${{ inputs.path }}" 2>/dev/null || true | grep -oP "(?<=rated at )[0-9.]+(?=/10)")
+        SCORE=${SCORE:-0.0}
         SCORE=$(echo $SCORE | tr -d '\r\n')
         echo "score=$SCORE" >> $GITHUB_OUTPUT
         echo "Pylint score for ${{ inputs.path }} : $SCORE"
