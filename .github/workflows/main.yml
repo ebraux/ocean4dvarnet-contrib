@@ -29,39 +29,40 @@ jobs:
       - name: Détecter les projets modifiés dans contrib
         id: filter-projects
         run: |
-          # Obtenir la liste des sous-dossiers modifiés
+          # Obtenir la liste des fichiers modifiés dans le dossier contrib
           if [ "${{ github.event_name }}" == "pull_request" ]; then
             CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "^contrib/" || true)
           else
             CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | grep "^contrib/" || true)
           fi
+          echo "Fichiers modifiés : $CHANGED_FILES"
 
-          # Extraire les noms de projets uniques
-          echo "CHANGED_FILES: $CHANGED_FILES"
+          # Extraire les noms de projets uniques à partir des chemins des fichiers modifiés
           PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u)
+          echo "Projets détectés : $PROJECTS"
 
           # Filtrer les projets pour exclure ceux qui ont été supprimés
-          FILTERED_PROJECTS=$(echo "$PROJECTS" | while read project; do
-          if [ -d "contrib/$project" ]; then
-            echo "$project"
-          fi
-            done | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          FILTERED_PROJECTS=$(for project in $PROJECTS; do
+            if [ -d "contrib/$project" ]; then
+              echo "$project"
+            fi
+          done | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          echo "Projets filtrés (excluant les supprimés) : $FILTERED_PROJECTS"
 
-          # Ensure projects output is always a valid JSON array
+          # S'assurer que la sortie est toujours un tableau JSON valide
           if [ -z "$FILTERED_PROJECTS" ]; then
             FILTERED_PROJECTS="[]"
           fi
           echo "projects=$FILTERED_PROJECTS" >> $GITHUB_OUTPUT
-          echo "Projets détectés (excluant les supprimés): $FILTERED_PROJECTS"
 
-          # Set deploy flag
+          # Définir le flag de déploiement si des projets sont détectés
           if [[ "$FILTERED_PROJECTS" != "[]" ]]; then
             echo "deploy=true" >> $GITHUB_ENV
-          fi
 
 
   contrib:
     needs: check-contribs
+    if: ${{ needs.check-contribs.outputs.projects != '[]' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
