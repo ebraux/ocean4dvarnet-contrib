@@ -62,7 +62,6 @@ jobs:
 
   contrib:
     needs: check-contribs
-        dir: ${{ fromJson(needs.check-contribs.outputs.projects) }}  # Liste dynamique des projets
     runs-on: ubuntu-latest
     strategy:
       matrix:
