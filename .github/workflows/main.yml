@@ -47,6 +47,10 @@ jobs:
           fi
             done | jq -R -s -c 'split("\n") | map(select(length > 0))')
 
+          # Ensure projects output is always a valid JSON array
+          if [ -z "$FILTERED_PROJECTS" ]; then
+            FILTERED_PROJECTS="[]"
+          fi
           echo "projects=$FILTERED_PROJECTS" >> $GITHUB_OUTPUT
           echo "Projets détectés (excluant les supprimés): $FILTERED_PROJECTS"
 
@@ -58,7 +62,7 @@ jobs:
 
   contrib:
     needs: check-contribs
-    if: needs.check-contribs.outputs.projects != ''
+        dir: ${{ fromJson(needs.check-contribs.outputs.projects) }}  # Liste dynamique des projets
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -133,10 +137,9 @@ jobs:
 
 
   check-scripts:
-    # if: >
-    #   contains(join(github.event.commits.*.modified, ','), 'scripts/') ||
-    #   contains(join(github.event.commits.*.added, ','), 'scripts/') ||
-    #   contains(join(github.event.commits.*.removed, ','), 'scripts/')
+    if: >
+      contains(join(github.event.commits.*.modified, ','), 'scripts/') ||
+      contains(join(github.event.commits.*.added, ','), 'scripts/') ||
     runs-on: ubuntu-latest
     outputs:
       artifact-scripts: ${{ steps.set-artifact-scripts.outputs.artifact-scripts }}
