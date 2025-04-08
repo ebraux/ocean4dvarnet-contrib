@@ -21,6 +21,7 @@ runs:
       shell: bash
 
     - name: debug
+      continue-on-error: true
       run: |
           sudo apt install -y tree
           tree ${{ inputs.path }}
