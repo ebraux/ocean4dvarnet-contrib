@@ -190,47 +190,17 @@ jobs:
 
   merge-docs-and-update-repo:
     needs:
-      - check-contribs  # to get project matrix
+      - check-contribs  # to get project list
       - contrib
       - check-scripts
     if: always()
     runs-on: ubuntu-latest
-    # strategy:
-      # matrix:
-      #   dir: ${{ fromJson(needs.check-contribs.outputs.projects || '[]') }}  # Liste dynamique des projets
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # - name: Debug matrix
-      #   run: |
-      #     echo "Projects from check-contribs: ${{ needs.check-contribs.outputs.projects }}"
-      # #     echo "Project from matrix: ${{ matrix.dir }}"
-      #     echo "Contribs Artifact :  ${{ needs.contrib.outputs.artifact-contrib}}"
-      #     echo "Scripts Artifact :  ${{ needs.check-scripts.outputs.artifact-scripts}}"
-
-      # - name: Debug matrix
-      #   run: |
-      #     echo "Projects from check-contribs: ${{ needs.check-contribs.outputs.projects }}"      
-
-
-      # - name: Download artifact for dynamic project ${{ matrix.dir }}
-      #   continue-on-error: true
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: generated-contrib-files-${{ matrix.dir }}  # Utilisation du nom dynamique basé sur la matrice
-      #     path: docs/contrib/${{ matrix.dir }}  # Télécharger l'artefact dans docs/contrib/{project}        
-
-      # - name: Install GitHub CLI
-      #   if: ${{ needs.check-contribs.outputs.projects != '[]' }}
-      #   run: |
-      #     sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-      #     sudo apt-add-repository https://cli.github.com/packages
-      #     sudo apt update
-      #     sudo apt install gh
-
-      - name: Download all contrib artifacts
+      - name: Download all contrib artifacts if needed
         if: ${{ needs.check-contribs.outputs.projects != '[]' }}
         run: |
           echo "Projects list: ${{ needs.check-contribs.outputs.projects }}"
@@ -244,9 +214,9 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          
 
-      - name: Download generated files for scripts
+      - name: Download generated files for scripts if needed
         continue-on-error: true
-        #if: needs. check-scripts.outputs.artifact-scripts == 'true'
+        if: needs. check-scripts.outputs.artifact-scripts == 'true'
         uses: actions/download-artifact@v4
         with:
           name: generated-scripts-files
@@ -257,14 +227,14 @@ jobs:
           echo "Generating documentation for contrib"
           python scripts/manage_contrib_list.py
 
-      - name: debug
-        run: |
-           sudo apt install -y tree
-           tree .
-           # tree docs/contrib
-           # tree docs/scripts
-           # tree generated-files-*
-           # tree generated-files-scripts
+      # - name: debug
+      #   run: |
+      #      sudo apt install -y tree
+      #      tree .
+      #      # tree docs/contrib
+      #      # tree docs/scripts
+      #      # tree generated-files-*
+      #      # tree generated-files-scripts
 
       - name: Commit and push generated files
         uses: stefanzweifel/git-auto-commit-action@v4
