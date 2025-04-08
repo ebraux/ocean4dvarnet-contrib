@@ -38,7 +38,6 @@ runs:
         SCORE=${SCORE:-0.0}
         SCORE=$(echo $SCORE | tr -d '\r\n')
         echo "score=$SCORE" >> $GITHUB_OUTPUT
-        echo "Pylint score for ${{ inputs.path }} : $SCORE"
       shell: bash
 
     # - name: Run Pylint
