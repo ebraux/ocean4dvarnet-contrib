@@ -25,7 +25,7 @@ runs:
       run: |
           sudo apt install -y tree
           tree ${{ inputs.path }}
-          pylint ${{ inputs.path }}
+          pylint ${{ inputs.path }} || true
           pylint ${{ inputs.path }} 
       shell: bash
 # | grep -oP "(?<=rated at )[0-9.]+(?=/10)"
