@@ -26,9 +26,9 @@ runs:
           sudo apt install -y tree
           tree ${{ inputs.path }}
           pylint ${{ inputs.path }}
-          pylint scripts 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)"
+          pylint ${{ inputs.path }} 2>/dev/null
       shell: bash
-
+# | grep -oP "(?<=rated at )[0-9.]+(?=/10)"
 
     - name: Run Pylint
       id: get-score
