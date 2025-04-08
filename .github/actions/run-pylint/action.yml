@@ -34,11 +34,12 @@ runs:
       id: get-score
       run: |
         # Run pylint and extract the score
-        SCORE=$(pylint ${{ inputs.path }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0.0")
+        #SCORE=$(pylint ${{ inputs.path }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)" || echo "0.0")
+        SCORE=$(pylint ${{ inputs.path }} 2>/dev/null | grep -oP "(?<=rated at )[0-9.]+(?=/10)")
         SCORE=$(echo $SCORE | tr -d '\r\n')
-        if ! [[ "$SCORE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-          SCORE="0.0"
-        fi
+        # if ! [[ "$SCORE" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        #   SCORE="0.0"
+        # fi
         echo "score=$SCORE" >> $GITHUB_OUTPUT
         echo "Pylint score for ${{ inputs.path }} : $SCORE"
       shell: bash
