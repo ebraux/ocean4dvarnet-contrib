@@ -69,8 +69,6 @@ jobs:
     outputs:
       artifact-contrib: ${{ steps.set-artifact-contrib.outputs.artifact-contrib }}
 
-
-
     steps:
 
       - name: Debug matrix
