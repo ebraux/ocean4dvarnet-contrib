@@ -33,11 +33,20 @@ runs:
     - name: Run Pylint
       id: get-score
       run: |
-        # Run pylint and extract the score
-        SCORE=$( (pylint "${{ inputs.path }}" 2>/dev/null || true) | grep -oP "(?<=rated at )[0-9.]+(?=/10)")
+        # 1. Run pylint and capture the output (ignore fatal errors)
+        PYLINT_OUTPUT=$(pylint "${{ inputs.path }}" 2>/dev/null || true)
+        #   - "|| true": prevents the script from failing if pylint returns
+        #                an error code.
+        # 2. Extract the score using grep
+        SCORE=$(echo "$PYLINT_OUTPUT" | grep -oP '(?<=rated at )[0-9.]+(?=/10)')
+        # 3. Provide a default value if the score is empty (e.g., 0)
         SCORE=${SCORE:-0.0}
+        # 4. Remove any trailing newlines or carriage returns
         SCORE=$(echo $SCORE | tr -d '\r\n')
+        # 5. Set the score as an output variable
         echo "score=$SCORE" >> $GITHUB_OUTPUT
+        # 6. Print the score to the console for debugging
+        echo "Pylint score for ${{ inputs.path }} : $SCORE"
       shell: bash
 
     # - name: Run Pylint
