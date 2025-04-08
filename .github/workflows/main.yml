@@ -135,8 +135,8 @@ jobs:
 
   check-scripts:
     if: >
-      contains(join(github.event.commits.*.modified, ','), 'scripts/') ||
-      contains(join(github.event.commits.*.added, ','), 'scripts/') ||
+      contains(join(github.event.head_commit.modified || '', ','), 'scripts/') ||
+      contains(join(github.event.head_commit.added || '', ','), 'scripts/')
     runs-on: ubuntu-latest
     outputs:
       artifact-scripts: ${{ steps.set-artifact-scripts.outputs.artifact-scripts }}
