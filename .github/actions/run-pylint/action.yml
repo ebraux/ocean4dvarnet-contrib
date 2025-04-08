@@ -20,15 +20,15 @@ runs:
       run: pip install pylint
       shell: bash
 
-    - name: debug
-      continue-on-error: true
-      run: |
-          sudo apt install -y tree
-          tree ${{ inputs.path }}
-          pylint ${{ inputs.path }} || true
-          pylint ${{ inputs.path }} 
-      shell: bash
-# | grep -oP "(?<=rated at )[0-9.]+(?=/10)"
+#     - name: debug
+#       continue-on-error: true
+#       run: |
+#           sudo apt install -y tree
+#           tree ${{ inputs.path }}
+#           pylint ${{ inputs.path }} || true
+#           pylint ${{ inputs.path }} 
+#       shell: bash
+# # | grep -oP "(?<=rated at )[0-9.]+(?=/10)"
 
     - name: Run Pylint
       id: get-score
