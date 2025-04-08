@@ -151,6 +151,11 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: debug
+        run: |
+           sudo apt install -y tree
+           tree .
+
       - name: Install global dependencies
         uses: ./.github/actions/install-deps
 

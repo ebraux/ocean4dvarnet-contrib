@@ -20,6 +20,13 @@ runs:
       run: pip install pylint
       shell: bash
 
+    - name: debug
+      run: |
+          sudo apt install -y tree
+          tree ${{ inputs.path }}
+      shell: bash
+
+      
     - name: Run Pylint
       id: get-score
       run: |
