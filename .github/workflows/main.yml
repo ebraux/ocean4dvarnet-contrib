@@ -38,16 +38,22 @@ jobs:
 
           # Extraire les noms de projets uniques
           echo "CHANGED_FILES: $CHANGED_FILES"
-          PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u | jq -R -s -c 'split("\n") | map(select(length > 0))')
-          echo "projects=$PROJECTS" >> $GITHUB_OUTPUT
-          echo "Projets détectés: $PROJECTS"
+          PROJECTS=$(echo "$CHANGED_FILES" | awk -F/ '{print $2}' | sort -u)
+
+          # Filtrer les projets pour exclure ceux qui ont été supprimés
+          FILTERED_PROJECTS=$(echo "$PROJECTS" | while read project; do
+          if [ -d "contrib/$project" ]; then
+            echo "$project"
+          fi
+            done | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "projects=$FILTERED_PROJECTS" >> $GITHUB_OUTPUT
+          echo "Projets détectés (excluant les supprimés): $FILTERED_PROJECTS"
+
           # Set deploy flag
-          if [[ "$PROJECTS" != "[]" ]]; then
+          if [[ "$FILTERED_PROJECTS" != "[]" ]]; then
             echo "deploy=true" >> $GITHUB_ENV
           fi
-# TODO : 
-#  - ajouter un test d'existance du dossier, car en cas de suppression, il fait partie de la liste des
-#     projets modifiés, mais n'existe plus dans le repo
 
 
   contrib:
