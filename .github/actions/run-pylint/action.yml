@@ -24,9 +24,10 @@ runs:
       run: |
           sudo apt install -y tree
           tree ${{ inputs.path }}
+          pylint ${{ inputs.path }}
       shell: bash
 
-      
+
     - name: Run Pylint
       id: get-score
       run: |
