@@ -5,20 +5,27 @@ and metadatas.yml files.
 import os
 import re
 import sys
-from datetime import datetime
-from scripts import write_pyproject_file, read_pyproject_metadata, create_readme, create_init_py, create_main_py, create_tests_directory, create_test_file
+from .utils import (
+    write_pyproject_file,
+    create_readme,
+    create_init_py,
+    create_main_py,
+    create_tests_directory,
+    create_test_file,
+)
 
-def is_valid_contribution_name(name):
+
+def is_valid_contribution_name(name: str):
     """
     Validate the contribution name.
 
     The name must only contain lowercase letters, digits, and underscores.
 
-    Parameters:
-    - name (str): The contribution name to validate.
+    Args:
+        name (str): The contribution name to validate.
 
     Returns:
-    - bool: True if the name is valid, False otherwise.
+        bool: True if the name is valid, False otherwise.
     """
     return re.fullmatch(r'[a-z0-9_]+', name) is not None
 
@@ -38,13 +45,19 @@ def create_contribution(name):
 
     # Create README.md
     create_readme(contrib_path=contrib_path, name=name,description=name)
-    
+
     # Create metadatas.yml
-    write_pyproject_file(contrib_path=contrib_path, name=name, description=name)
-    
+    write_pyproject_file(
+         contrib_path=contrib_path,
+         name=name,
+         metadata={
+            "description": name,
+         }
+    )
+
     # Create __init__.py
     create_init_py(contrib_path=contrib_path, name=name)
-    
+
     # Create CONTRIB_NAME.py
     create_main_py(contrib_path=contrib_path, name=name)
 

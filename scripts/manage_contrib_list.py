@@ -38,21 +38,6 @@ from scripts import list_subdirs
 CONTRIB_DIR = "./contrib"
 DOCS_CONTRIB_DIR = "./docs/contrib"
 
-def list_directories(path):
-    """
-    List all subdirectories in the given path.
-
-    Args:
-        path (str): The directory path to list subdirectories from.
-
-    Returns:
-        set: A set of subdirectory names.
-
-    """
-    if not os.path.exists(path):
-        return set()
-    return {name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))}
-
 def sync_contrib_docs():
     """
     Synchronize the `docs/contrib` directory with the `contrib` directory.
@@ -68,8 +53,8 @@ def sync_contrib_docs():
     print(docs_contrib_dirs)
 
     # Remove directories in docs/contrib that do not exist in contrib
-    obsolete_in_docs= docs_contrib_dirs - contrib_dirs
-    if (not obsolete_in_docs):
+    obsolete_in_docs = docs_contrib_dirs - contrib_dirs
+    if not obsolete_in_docs:
         print("\nNo obsolete contrib in docs/contrib.")
     else:
         for doc_dir in obsolete_in_docs:
@@ -79,7 +64,7 @@ def sync_contrib_docs():
 
     # List directories in contrib that do not exist in docs/contrib
     missing_in_docs = contrib_dirs - docs_contrib_dirs
-    if (not missing_in_docs):
+    if not missing_in_docs:
         print("\nNo contrib missing in docs/contrib.")
     else:
         print(f"\nContrib missing in docs/contrib:\n{missing_in_docs}")
@@ -96,6 +81,7 @@ def sync_contrib_docs():
 
     print(f"\nGenerated index file : {index_path}")
 
-#### Execution:
+
+# Execution:
 if __name__ == "__main__":
     sync_contrib_docs()

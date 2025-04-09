@@ -53,14 +53,9 @@ mkdocs = "^1.0"
 mkdocstrings = "^0.17"
 # Ajoute d'autres dépendances de développement si nécessaire (ex: flake8, black)
 
-[tool.tox]
-envlist = py38, py39, py310, py311
+# Tox configuration has been moved to tox.ini
+# [tool.tox]
 
-[testenv]
-deps =
-    pytest
-    tomli
-commands = pytest
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -70,6 +65,3 @@ python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
 
-[build-system]
-requires = ["setuptools", "wheel"]
-build-backend = "setuptools.build_meta"

@@ -19,28 +19,16 @@ Requirements:
 
 import os
 import sys
-import sysconfig
-import platform
 from typing import Optional
 from scripts import read_pyproject_metadata
 
-# Load tomllib (Python 3.11+) or fallback to tomli
-try:
-    import tomllib  # Python 3.11+
-except ModuleNotFoundError:
-    try:
-        import tomli as tomllib  # Python 3.6–3.10
-    except ModuleNotFoundError:
-        print("Error: Python < 3.11 detected. You need to install 'tomli':\n  pip install tomli")
-        sys.exit(1)
 
-
-def generate_python_file_docs(contrib_name: str, subdir_path: str, docdir_path: str) -> list:
+def generate_python_file_docs(module_name: str, subdir_path: str, docdir_path: str) -> list:
     """
     Generates a Markdown documentation file for each Python module in the given subdirectory.
 
     Args:
-        contrib_name (str): The name of the contribution module (used in headings and paths).
+        module_name (str): The name of the contribution module (used in headings and paths).
         subdir_path (str): Path to the source contrib directory.
         docdir_path (str): Path where the Markdown documentation files will be written.
 
@@ -56,20 +44,20 @@ def generate_python_file_docs(contrib_name: str, subdir_path: str, docdir_path: 
             # Generate a Markdown file for each Python file
             md_path = os.path.join(docdir_path, f"{name}.md")
             with open(md_path, 'w', encoding='utf-8') as f:
-                f.write(f"# {contrib_name}.{name}\n")
-                f.write(f"::: contrib.{contrib_name}.{name}\n")
+                f.write(f"# {module_name}.{name}\n")
+                f.write(f"::: contrib.{module_name}.{name}\n")
                 print(f"Generated Markdown file: {md_path}")
     return entries
 
 
-def write_readme(contrib_name: str, docdir_path: str, metadata: Optional[dict],
+def write_readme(module_name: str, docdir_path: str, metadata: Optional[dict],
                  py_files: list, subdir_path: str) -> None:
     """
     Creates a README.md file summarizing the contrib module, its metadata,
     and links to individual module docs.
 
     Args:
-        contrib_name (str): The name of the contrib submodule.
+        module_name (str): The name of the contrib submodule.
         docdir_path (str): Output path for the README.md file.
         metadata (Optional[dict]): Metadata dictionary from pyproject.toml.
         py_files (list): List of processed Python file names (no extensions).
@@ -79,7 +67,7 @@ def write_readme(contrib_name: str, docdir_path: str, metadata: Optional[dict],
 
     with open(readme_path, 'w', encoding='utf-8') as md_file:
         # Title and badges
-        md_file.write(f"# {contrib_name}\n")
+        md_file.write(f"# {module_name}\n")
         md_file.write("![pylint](./badges/pylint.svg)")
         md_file.write("![pytest](./badges/coverage.svg)\n\n")
 
@@ -105,23 +93,23 @@ def write_readme(contrib_name: str, docdir_path: str, metadata: Optional[dict],
     print(f"Generated Markdown file: {readme_path}")
 
 
-def generate_markdown_for_contrib(contrib_name: str,
+def generate_markdown_for_contrib(module_name: str,
                                   contrib_dir: str = "contrib",
                                   docs_dir: str = "docs/contrib") -> None:
     """
     Orchestrates the documentation generation for a contrib submodule.
 
     Args:
-        contrib_name (str): Name of the submodule inside contrib/.
+        module_name (str): Name of the submodule inside contrib/.
         contrib_dir (str): Path to the contrib source directory.
         docs_dir (str): Path to the output documentation directory.
     """
-    subdir_path = os.path.join(contrib_dir, contrib_name)
-    docdir_path = os.path.join(docs_dir, contrib_name)
+    subdir_path = os.path.join(contrib_dir, module_name)
+    docdir_path = os.path.join(docs_dir, module_name)
 
     # Check if the target subdirectory exists
     if not os.path.exists(subdir_path) or not os.path.isdir(subdir_path):
-        print(f"The subdirectory '{contrib_name}' does not exist in '{contrib_dir}'.")
+        print(f"The subdirectory '{module_name}' does not exist in '{contrib_dir}'.")
         return
 
     # Ensure output directory exists
@@ -131,10 +119,10 @@ def generate_markdown_for_contrib(contrib_name: str,
     metadata = read_pyproject_metadata(os.path.join(subdir_path, "pyproject.toml"))
 
     # Generate .md files for each Python module
-    py_files = generate_python_file_docs(contrib_name, subdir_path, docdir_path)
+    py_files = generate_python_file_docs(module_name, subdir_path, docdir_path)
 
     # Generate the README.md summary
-    write_readme(contrib_name, docdir_path, metadata, py_files, subdir_path)
+    write_readme(module_name, docdir_path, metadata, py_files, subdir_path)
 
 
 if __name__ == "__main__":
