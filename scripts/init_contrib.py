@@ -6,7 +6,7 @@ import os
 import re
 import sys
 from datetime import datetime
-
+from scripts import write_pyproject_file, read_pyproject_metadata, create_readme, create_init_py, create_main_py, create_tests_directory, create_test_file
 
 def is_valid_contribution_name(name):
     """
@@ -37,49 +37,22 @@ def create_contribution(name):
     os.makedirs(contrib_path, exist_ok=True)
 
     # Create README.md
-    readme_path = os.path.join(contrib_path, 'README.md')
-    with open(readme_path, 'w', encoding='utf-8') as readme_file:
-        readme_file.write(f"# {name}\n")
-    print(f"Created README.md in {contrib_path}")
-
+    create_readme(contrib_path=contrib_path, name=name,description=name)
+    
     # Create metadatas.yml
-    metadata_path = os.path.join(contrib_path, 'metadatas.yml')
-    today_date = datetime.now().strftime("%Y-%m-%d")
-    with open(metadata_path, 'w', encoding='utf-8') as metadata_file:
-        metadata_file.write(
-            f"""name: "{name}"
-description: "{name}"
-date: "{today_date}"
-contact: "contributor1@example.com"
-version: "1.0.0"
-license: "CeCILL-C FREE SOFTWARE LICENSE AGREEMENT"
-dependencies: ""
-"""
-        )
-    print(f"Created metadatas.yml in {contrib_path}")
-
+    write_pyproject_file(contrib_path=contrib_path, name=name, description=name)
+    
     # Create __init__.py
-    init_py_path = os.path.join(contrib_path, '__init__.py')
-    with open(init_py_path, 'w', encoding='utf-8') as init_py_file:
-        init_py_file.write(f"# {name}\n")
-    print(f"Created __init__.py in {contrib_path}")
-
+    create_init_py(contrib_path=contrib_path, name=name)
+    
     # Create CONTRIB_NAME.py
-    code_path = os.path.join(contrib_path, name, '.py')
-    with open(code_path, 'w', encoding='utf-8') as code_file:
-        code_file.write(f"\"\"\"ocean4dvarnet contribution {name}\"\"\"\n")
-    print(f"Created {name}.py in {contrib_path}")
+    create_main_py(contrib_path=contrib_path, name=name)
 
     # Create tests folder
-    tests_path = os.path.join(contrib_path, 'tests')
-    os.makedirs(tests_path, exist_ok=True)
-    print(f"Created tests directory in {contrib_path}")
+    create_tests_directory(contrib_path=contrib_path)
 
     # Create tests/tests_CONTRIB_NAME.py
-    test_path = os.path.join(contrib_path, f'tests/test_{name}.py')
-    with open(test_path, 'w', encoding='utf-8') as test_file:
-        code_file.write(f"\"\"\"tests for ocean4dvarnet contribution {name}\"\"\"\n")
-    print(f"Created tests/test_{name}.py in {contrib_path}")
+    create_test_file(contrib_path=contrib_path, name=name)
 
 
 def main():

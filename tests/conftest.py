@@ -6,7 +6,10 @@ PYTHONPATH, allowing the test suite to import modules from the `scripts` package
 """
 
 import sys
-from pathlib import Path
+import os
 
-# Ajouter le répertoire racine du projet au PYTHONPATH
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+
+

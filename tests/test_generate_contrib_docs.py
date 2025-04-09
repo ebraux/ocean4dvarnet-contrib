@@ -1,87 +1,109 @@
-"""
-Unit tests for the `generate_contrib_docs` function from the `scripts.generate_contrib_docs` module.
-
-This test suite verifies that the Markdown document is correctly generated based on the
-metadata files in the 'contrib' directory.
-"""
-
 import os
 import shutil
-from pathlib import Path
-from scripts.generate_contrib_docs import generate_contrib_docs
+import pytest
 
-CONTRIB_DIR = "./contrib"
-OUTPUT_FILE = "./contributions-list.md"
+from generate_contrib_docs import (
+    read_pyproject_metadata,
+    generate_python_file_docs,
+    write_readme,
+    generate_markdown_for_contrib,
+)
 
-def setup_module(module):
+
+@pytest.fixture
+def example_contrib_dir(tmp_path):
     """
-    Setup function to create temporary contrib directories with metadata files for testing.
-
-    Args:
-        module: The module object (automatically passed by pytest).
+    Create a temporary contrib module with:
+    - pyproject.toml
+    - 2 Python files
     """
-    os.makedirs(CONTRIB_DIR, exist_ok=False)
+    contrib_name = "my_module"
+    contrib_path = tmp_path / "contrib" / contrib_name
+    contrib_path.mkdir(parents=True)
 
-    # Create a valid contribution directory with metadata
-    os.makedirs(f"{CONTRIB_DIR}/valid_contrib", exist_ok=True)
-    with open(f"{CONTRIB_DIR}/valid_contrib/metadatas.yml", 'w') as f:
-        f.write("""name: "Valid Contribution"
-description: "A valid contribution for testing."
-date: "2025-04-01"
-contact: "test@example.com"
-version: "1.0.0"
-license: "MIT"
-dependencies: ["dependency1", "dependency2"]
+    # pyproject.toml with basic metadata
+    pyproject = contrib_path / "pyproject.toml"
+    pyproject.write_text("""
+[project]
+name = "my_module"
+version = "0.1.0"
+description = "Example contrib module"
+authors = [{name = "Alice"}, {name = "Bob"}]
 """)
 
-    # Create another valid contribution directory
-    os.makedirs(f"{CONTRIB_DIR}/another_contrib", exist_ok=True)
-    with open(f"{CONTRIB_DIR}/another_contrib/metadatas.yml", 'w') as f:
-        f.write("""name: "Another Contribution"
-description: "Another valid contribution for testing."
-date: "2025-04-02"
-contact: "another@example.com"
-version: "2.0.0"
-license: "Apache-2.0"
-dependencies: ["dependency3"]
-""")
+    # Sample Python files
+    (contrib_path / "script1.py").write_text("# Script 1")
+    (contrib_path / "script2.py").write_text("# Script 2")
+    (contrib_path / "__init__.py").write_text("# Init")
 
-def teardown_module(module):
-    """
-    Teardown function to remove the temporary contrib directories and output file after tests.
+    return tmp_path, contrib_name
 
-    Args:
-        module: The module object (automatically passed by pytest).
-    """
-    if os.path.exists(CONTRIB_DIR):
-        shutil.rmtree(CONTRIB_DIR)
-    if os.path.exists(OUTPUT_FILE):
-        os.remove(OUTPUT_FILE)
 
-def test_generate_contrib_docs():
-    """
-    Test the `generate_contrib_docs` function to ensure it generates the expected Markdown file.
-    """
-    generate_contrib_docs()
+def test_read_pyproject_metadata(example_contrib_dir):
+    tmp_path, contrib_name = example_contrib_dir
+    contrib_path = tmp_path / "contrib" / contrib_name
+    metadata = read_pyproject_metadata(contrib_path / "pyproject.toml")
 
-    # Check if the output file exists
-    assert os.path.isfile(OUTPUT_FILE)
+    assert metadata["name"] == "my_module"
+    assert metadata["version"] == "0.1.0"
+    assert isinstance(metadata["authors"], list)
 
-    # Verify the content of the generated Markdown file
-    with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
-        content = f.read()
 
-    assert "# Contributions" in content
-    assert "## Valid Contribution (1.0.0)" in content
-    assert "**Description**: A valid contribution for testing." in content
-    assert "**Date**: 2025-04-01" in content
-    assert "**Contact**: test@example.com" in content
-    assert "**License**: MIT" in content
-    assert "**Dependencies**: dependency1, dependency2" in content
+def test_generate_python_file_docs(example_contrib_dir):
+    tmp_path, contrib_name = example_contrib_dir
+    contrib_path = tmp_path / "contrib" / contrib_name
+    doc_path = tmp_path / "docs" / "contrib" / contrib_name
+    doc_path.mkdir(parents=True)
 
-    assert "## Another Contribution (2.0.0)" in content
-    assert "**Description**: Another valid contribution for testing." in content
-    assert "**Date**: 2025-04-02" in content
-    assert "**Contact**: another@example.com" in content
-    assert "**License**: Apache-2.0" in content
-    assert "**Dependencies**: dependency3" in content
+    files = generate_python_file_docs(contrib_name, str(contrib_path), str(doc_path))
+
+    assert sorted(files) == ["script1", "script2"]
+
+    for name in files:
+        md = doc_path / f"{name}.md"
+        assert md.exists()
+        assert f"::: contrib.{contrib_name}.{name}" in md.read_text()
+
+
+def test_write_readme(example_contrib_dir):
+    tmp_path, contrib_name = example_contrib_dir
+    contrib_path = tmp_path / "contrib" / contrib_name
+    doc_path = tmp_path / "docs" / "contrib" / contrib_name
+    doc_path.mkdir(parents=True)
+
+    metadata = read_pyproject_metadata(contrib_path / "pyproject.toml")
+    py_files = ["script1", "script2"]
+
+    write_readme(contrib_name, str(doc_path), metadata, py_files, str(contrib_path))
+
+    readme = doc_path / "README.md"
+    content = readme.read_text()
+    assert "# my_module" in content
+    assert "| name | my_module |" in content
+    assert "- [script1](./script1.md)" in content
+
+
+def test_generate_markdown_for_contrib_end_to_end(example_contrib_dir):
+    tmp_path, contrib_name = example_contrib_dir
+    os.chdir(tmp_path)  # simulate project root
+
+    generate_markdown_for_contrib(contrib_name)
+
+    doc_path = tmp_path / "docs" / "contrib" / contrib_name
+    assert (doc_path / "README.md").exists()
+    assert (doc_path / "script1.md").exists()
+    assert (doc_path / "script2.md").exists()
+
+
+def test_missing_pyproject(monkeypatch, tmp_path):
+    contrib_name = "empty_module"
+    contrib_path = tmp_path / "contrib" / contrib_name
+    contrib_path.mkdir(parents=True)
+    (contrib_path / "hello.py").write_text("print('hi')")
+
+    os.chdir(tmp_path)
+    generate_markdown_for_contrib(contrib_name)
+
+    readme_path = tmp_path / "docs" / "contrib" / contrib_name / "README.md"
+    assert readme_path.exists()
+    assert "No pyproject.toml" in readme_path.read_text()

@@ -30,3 +30,46 @@ build-backend = "setuptools.build_meta"
 
 [tool.pylint.format]
 max-line-length = 120
+
+
+[tool.poetry]
+name = "my_project"
+version = "0.1.0"
+description = "An awesome project to manage docs and tests"
+authors = ["Your Name <youremail@example.com>"]
+license = "MIT"
+
+# Main dependencies (your project dependencies)
+[tool.poetry.dependencies]
+python = "^3.8"
+# Ajoute ici tes autres dépendances principales (ex: Flask, requests)
+
+# Development dependencies
+[tool.poetry.dev-dependencies]
+pytest = "^7.0"
+tox = "^3.25"
+tomli = "^2.0"
+mkdocs = "^1.0"
+mkdocstrings = "^0.17"
+# Ajoute d'autres dépendances de développement si nécessaire (ex: flake8, black)
+
+[tool.tox]
+envlist = py38, py39, py310, py311
+
+[testenv]
+deps =
+    pytest
+    tomli
+commands = pytest
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = "tests"
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
