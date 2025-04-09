@@ -5,11 +5,10 @@
 |-----|-------|
 | name | lorenz63 |
 | description | lorenz63 |
-| date | yyyy-mm-dd |
-| contact | contributor1@example.com |
 | version | 1.0.0 |
 | license | CeCILL-C FREE SOFTWARE LICENSE AGREEMENT |
-| dependencies |  |
+| authors | Contributor Name |
+| dependencies | [] |
 
 ----------------------------------------
 - [models](./models.md)

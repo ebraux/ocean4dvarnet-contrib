@@ -2,17 +2,9 @@
 
 import os
 import argparse
-from scripts import pyproject_file_exists, write_pyproject_file, readme_exists, create_readme, init_py_exists, create_init_py, main_py_exists, create_main_py, create_tests_directory, test_file_exists, create_test_file
+from scripts import list_subdirs, pyproject_file_exists, write_pyproject_file, readme_exists, create_readme, init_py_exists, create_init_py, main_py_exists, create_main_py, create_tests_directory, test_file_exists, create_test_file
 
 CONTRIB_DIR = "./contrib"
-
-
-def get_contrib_subdirs() -> list:
-    return [
-        name for name in os.listdir(CONTRIB_DIR)
-        if os.path.isdir(os.path.join(CONTRIB_DIR, name))
-    ]
-
 
 
 def create_files_for_contribs() -> None:
@@ -21,7 +13,7 @@ def create_files_for_contribs() -> None:
         print(f" The directory '{CONTRIB_DIR}' does not exist.")
         return
 
-    for subdir in get_contrib_subdirs():
+    for subdir in list_subdirs(CONTRIB_DIR):
         path = os.path.join(CONTRIB_DIR, subdir)
 
         if not pyproject_file_exists(contrib_path=path):

@@ -16,6 +16,23 @@ CONTRIB_DIR = "./contrib"
 DOCS_CONTRIB_DIR = "./docs/contrib"
 
 
+def list_subdirs(path):
+    """
+    List all subdirectories in the given path.
+
+    Args:
+        path (str): The directory path to list subdirectories from.
+
+    Returns:
+        set: A set of subdirectory names.
+
+    """
+    if not os.path.exists(path):
+        return set()
+    return {name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))}
+
+
+
 def readme_exists(contrib_path: str) -> bool:
     return os.path.exists(os.path.join(contrib_path, 'README.md'))
 

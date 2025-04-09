@@ -117,7 +117,7 @@ jobs:
       - name: Generate documentation for ${{ matrix.dir }}
         run: |
           echo "Generating documentation for ${{ matrix.dir }}"
-          python scripts/generate_contrib_docs.py ${{ matrix.dir }}
+          python3 -m scripts.generate_contrib_docs.py ${{ matrix.dir }}
           mv docs/contrib/${{ matrix.dir }}/README.md generated-contrib-files/${{ matrix.dir }}
 
       - name: Upload generated files
@@ -230,7 +230,7 @@ jobs:
       - name: Generate documentation for contrib
         run: |
           echo "Generating documentation for contrib"
-          python scripts/manage_contrib_list.py
+          python3 -m scripts.manage_contrib_list.py
 
       # - name: debug
       #   run: |
