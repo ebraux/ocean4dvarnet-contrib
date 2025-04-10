@@ -22,26 +22,8 @@ runs:
     - name: Run tests and generate coverage
       run: |
         mkdir -p ${{ inputs.output-dir }}/reports
-         
-        echo "Running tests for ${{ inputs.path }}"
-
-        # Check if the path is for the scripts directory
-        # Run pytest on the root tests folder
-        if [[ -d "tests" ]]; then
-          echo "Running tests from the root tests folder"
-          pytest --cov=${{ inputs.path }} --cov-report=xml:${{ inputs.output-dir }}/reports/coverage_scripts.xml
-        else
-          echo "No tests directory found in the root directory"
-        fi
-
-        # Check if the path is in the code folder
-        if [[ -d "${{ inputs.path }}/tests" ]]; then
-          # Run pytest on the {name}/tests folder
-          echo "Running tests for ${input.path} from its tests folder"
-          pytest --cov=${{ inputs.path }} --cov-report=xml:${{ inputs.output-dir }}/reports/coverage_${{ inputs.path }}.xml ${{ inputs.path }}
-        else
-          echo "No tests directory found for ${{ inputs.path }}"
-        fi
+        echo "Running tests for ${{ inputs.path }}, outputting to ${{ inputs.output-dir }}"
+        pytest --cov=${{ inputs.path }} --cov-report=xml:${{ inputs.output-dir }}/reports/coverage.xml ${{ inputs.path }}
       shell: bash
 
     - name: Extract coverage

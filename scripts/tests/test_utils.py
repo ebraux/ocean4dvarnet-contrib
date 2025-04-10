@@ -6,7 +6,7 @@ import tempfile
 
 import pytest
 
-from scripts import utils
+import utils
 
 
 @pytest.fixture
