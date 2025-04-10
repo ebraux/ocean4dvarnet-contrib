@@ -258,7 +258,7 @@ jobs:
           file_pattern: |
             docs/contrib/**
             docs/scripts/**
-          push: true
+          commit_user_name: "GitHub Action"
 
   update-mkdocs:
     needs: merge-docs-and-update-repo
