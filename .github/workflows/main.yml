@@ -212,7 +212,22 @@ jobs:
       
           for project in $PROJECTS; do
           echo "Downloading artifact for $project"
-          gh run download --name "generated-contrib-files-$project" --dir "docs/contrib/$project" || echo "No artifact found for $project"
+          # the "gh run download" does not replace the files if they already exist
+          # step 1 : download files in a temp directory
+          mkdir -p /tmp/temp_download_folder
+          gh run download --name "generated-contrib-files-$project" --dir /tmp/temp_download_folder
+
+          # Step 2 : check il files were donwloaded
+          if [ "$(ls -A /tmp/temp_download_folder)" ]; then
+            mv /tmp/temp_download_folder/* docs/contrib/$project/
+            echo "Files moved to  docs/contrib/$project/"
+          else
+            echo "No artifact found for $project"
+          fi
+
+          # Step 3 : Cleaning
+          rm -rf /tmp/temp_download_folder
+
           done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
