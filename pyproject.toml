@@ -31,6 +31,11 @@ build-backend = "setuptools.build_meta"
 [tool.pylint.format]
 max-line-length = 120
 
+[tool.pylint.'main']
+init-hook = "import sys; sys.path.append('.')"
+
+[tool.flake8]
+max-line-length = 120
 
 [tool.poetry]
 name = "my_project"

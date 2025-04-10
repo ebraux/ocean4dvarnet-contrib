@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name
+"""Unit tests for utils.py"""
 import os
 import shutil
 import tempfile
@@ -8,10 +10,13 @@ from scripts import utils
 
 
 @pytest.fixture
-def temp_contrib_dir():
+def contrib_dir_fixture():
     """
     Creates a temporary directory simulating a contribution folder with a valid structure.
     Automatically cleans up after the test.
+
+    Yields:
+        tuple: A tuple containing the temporary directory path, contribution name, and contribution path.
     """
     temp_dir = tempfile.mkdtemp()
     contrib_name = "test_contrib"
@@ -21,64 +26,65 @@ def temp_contrib_dir():
     shutil.rmtree(temp_dir)
 
 
-def test_create_readme(temp_contrib_dir):
+def test_create_readme(contrib_dir_fixture):
     """
     Test that the README.md file is created with the correct title and description.
     """
-    _, name, path = temp_contrib_dir
+    _, name, path = contrib_dir_fixture
     utils.create_readme(path, name, "Test description")
     readme_path = os.path.join(path, "README.md")
     assert os.path.exists(readme_path)
-    with open(readme_path) as f:
+    with open(readme_path, encoding="utf-8") as f:
         content = f.read()
     assert f"# {name}" in content
 
 
-def test_create_init_py(temp_contrib_dir):
+
+def test_create_init_py(contrib_dir_fixture):
     """
     Test that the __init__.py file is created with the module docstring.
     """
-    _, name, path = temp_contrib_dir
+    _, name, path = contrib_dir_fixture
     utils.create_init_py(path, name)
     init_path = os.path.join(path, "__init__.py")
     assert os.path.exists(init_path)
-    with open(init_path) as f:
+    with open(init_path, encoding="utf-8") as f:
         content = f.read()
     assert name in content
 
 
-def test_create_main_py(temp_contrib_dir):
+def test_create_main_py(contrib_dir_fixture):
     """
     Test that the main Python file is created with a valid docstring.
     """
-    _, name, path = temp_contrib_dir
+    _, name, path = contrib_dir_fixture
     utils.create_main_py(path, name)
     main_py = os.path.join(path, f"{name}.py")
     assert os.path.exists(main_py)
-    with open(main_py) as f:
+    with open(main_py, encoding="utf-8") as f:
         content = f.read()
     assert f"contribution {name}" in content
 
 
-def test_create_tests_directory_and_file(temp_contrib_dir):
+def test_create_tests_directory_and_file(contrib_dir_fixture):
     """
     Test that the tests/ directory and test file are correctly created.
     """
-    _, name, path = temp_contrib_dir
+    _, name, path = contrib_dir_fixture
     utils.create_tests_directory(path)
     utils.create_test_file(path, name)
     test_file = os.path.join(path, "tests", f"test_{name}.py")
     assert os.path.exists(test_file)
-    with open(test_file) as f:
+    with open(test_file, encoding="utf-8") as f:
         content = f.read()
     assert "tests for contribution" in content
 
 
-def test_write_and_read_pyproject_file(temp_contrib_dir):
+def test_write_and_read_pyproject_file(contrib_dir_fixture):
     """
     Test writing and reading metadata from pyproject.toml.
     """
-    _, name, path = temp_contrib_dir
+    _, name, path = contrib_dir_fixture
     utils.write_pyproject_file(
         path,
         name,
@@ -101,23 +107,23 @@ def test_write_and_read_pyproject_file(temp_contrib_dir):
     assert "numpy" in metadata["dependencies"]
 
 
-def test_validate_contrib_metadata_success(temp_contrib_dir):
+def test_validate_contrib_metadata_success(contrib_dir_fixture):
     """
     Test that validation succeeds with a valid pyproject.toml.
     """
-    _, name, path = temp_contrib_dir
+    temp_dir, name, path = contrib_dir_fixture
     utils.write_pyproject_file(path, name)
-    valid = utils.validate_contrib_metadata(name)
+    valid = utils.validate_contrib_metadata(name, base_path=temp_dir)
     assert valid is True
 
 
-def test_validate_contrib_metadata_missing_fields(temp_contrib_dir):
+def test_validate_contrib_metadata_missing_fields(contrib_dir_fixture):
     """
     Test that validation fails when required fields are missing in pyproject.toml.
     """
-    _, name, path = temp_contrib_dir
+    temp_dir, name, path = contrib_dir_fixture
     pyproject_path = os.path.join(path, "pyproject.toml")
-    with open(pyproject_path, "w") as f:
+    with open(pyproject_path, "w", encoding="utf-8") as f:
         f.write("[project]\nname = \"incomplete\"\n")
-    valid = utils.validate_contrib_metadata(name)
+    valid = utils.validate_contrib_metadata(name, base_path=temp_dir)
     assert valid is False

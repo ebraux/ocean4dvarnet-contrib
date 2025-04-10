@@ -54,7 +54,7 @@ DEFAULT_VERSION = "1.0.0"
 
 CONTRIB_DIR = "./contrib"
 DOCS_CONTRIB_DIR = "./docs/contrib"
-REQUIRED_FIELDS = ['name', 'description', 'contact', 'version', 'license']
+REQUIRED_FIELDS = ['name', 'description', 'authors', 'version', 'license']
 
 
 
@@ -359,7 +359,7 @@ def sync_contrib_docs():
     print(missing_in_docs)
 
 
-def validate_contrib_metadata(contrib_name: str) -> bool:
+def validate_contrib_metadata(contrib_name: str, base_path: str = CONTRIB_DIR) -> bool:
     """
     Validate the pyproject.toml metadata for a given contribution.
 
@@ -369,7 +369,7 @@ def validate_contrib_metadata(contrib_name: str) -> bool:
     Returns:
         bool: True if metadata is valid, False otherwise.
     """
-    pyproject_path = os.path.join(CONTRIB_DIR, contrib_name, "pyproject.toml")
+    pyproject_path = os.path.join(base_path, contrib_name, "pyproject.toml")
     metadata = read_pyproject_metadata(pyproject_path)
 
     if metadata is None:

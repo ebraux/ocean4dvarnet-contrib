@@ -1,0 +1,48 @@
+---
+name: CI for pytest scripts
+    
+    on:
+      push:
+        paths:
+          - 'tests/**'
+    
+    jobs:
+check-scripts:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install global dependencies
+        uses: ./.github/actions/install-deps
+
+      - name: Run pylint for tests
+        continue-on-error: true
+        id: pylint
+        uses: ./.github/actions/run-pylint
+        with:
+          path: tests
+          output-dir: generated-tests-files
+
+      - name: Run pytest for tests
+        continue-on-error: true
+        id: pytest
+        uses: ./.github/actions/run-pytest
+        with:
+          path: scripts
+          output-dir: generated-tests-files
+
+    #   - name: Upload generated files
+    #     uses: actions/upload-artifact@v4
+    #     with:
+    #       name: generated-tests-files
+    #       path: generated-tests-files
+
+        
+
