@@ -1,7 +1,0 @@
-[project]
-name = "toto5"
-description = "toto5"
-version = "1.0.0"
-license = "CeCILL-C FREE SOFTWARE LICENSE AGREEMENT"
-authors = [{ name = "Contributor Name", email = "contributor1@example.com" }]
-dependencies =  []
