@@ -22,7 +22,9 @@ runs:
     - name: Run tests and generate coverage
       run: |
         mkdir -p ${{ inputs.output-dir }}/reports
-        
+         
+        echo "Running tests for ${{ inputs.path }}"
+
         # Check if the path is for the scripts directory
         # Run pytest on the root tests folder
         if [[ -d "tests" ]]; then
@@ -33,7 +35,7 @@ runs:
         fi
 
         # Check if the path is in the code folder
-        elif [[ -d "${{ inputs.path }}/tests" ]]; then
+        if [[ -d "${{ inputs.path }}/tests" ]]; then
           # Run pytest on the {name}/tests folder
           echo "Running tests for ${input.path} from its tests folder"
           pytest --cov=${{ inputs.path }} --cov-report=xml:${{ inputs.output-dir }}/reports/coverage_${{ inputs.path }}.xml ${{ inputs.path }}
