@@ -1,5 +1,5 @@
 """
-This script synchronizes the `docs/contrib` directory with the `contrib` directory.
+This script synchronizes  the `docs/contrib` directory with the `contrib` directory.
 
 Steps:
 1. List subdirectories in `contrib` and `docs/contrib`.

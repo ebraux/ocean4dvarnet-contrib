@@ -97,7 +97,6 @@ jobs:
         with:
           path: ${{ matrix.dir }}/requirements.txt
 
-
       - name: Run pylint for ${{ matrix.dir }}
         continue-on-error: true
         id: pylint

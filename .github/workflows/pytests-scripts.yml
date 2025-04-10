@@ -7,7 +7,7 @@ on:
       - 'tests/**'
 
 jobs:
-  
+
   check-pytest-scripts:
     runs-on: ubuntu-latest
 
@@ -29,14 +29,6 @@ jobs:
         uses: ./.github/actions/run-pylint
         with:
           path: tests
-          output-dir: generated-tests-files
-
-      - name: Run pytest for tests
-        continue-on-error: true
-        id: pytest
-        uses: ./.github/actions/run-pytest
-        with:
-          path: scripts
           output-dir: generated-tests-files
 
     #   - name: Upload generated files

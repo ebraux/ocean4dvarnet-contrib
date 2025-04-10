@@ -1,5 +1,5 @@
 # pylint: disable=redefined-outer-name
-"""Unit tests for  utils.py"""
+"""Unit tests for utils.py"""
 import os
 import shutil
 import tempfile
