@@ -249,6 +249,12 @@ jobs:
           echo "Generating documentation for contrib"
           python3 -m scripts.manage_contrib_list
 
+
+      - name: Add files to git index
+        run: |
+          git add docs/contrib/**
+          git add docs/scripts/**
+
       - name: debug
         run: |
            sudo apt install -y tree
