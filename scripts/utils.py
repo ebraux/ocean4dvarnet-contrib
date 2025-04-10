@@ -166,8 +166,20 @@ def create_main_py(contrib_path: str, name: str) -> None:
         None
     """
     code_path = os.path.join(contrib_path, f"{name}.py")
+    # Content to be inserted into the file
+    content = f'''"""ocean4dvarnet contribution {name}"""
+
+def hello_world():
+    """A simple function that returns 'Hello, World!'
+
+    Returns:
+        str: The string 'Hello, World!'.
+    """
+    return "Hello, World!"
+'''
+
     with open(code_path, 'w', encoding='utf-8') as code_file:
-        code_file.write(f"\"\"\"ocean4dvarnet contribution {name}\"\"\"\n")
+        code_file.write(content)
     print(f"Created {code_path}")
 
 
@@ -202,13 +214,77 @@ def test_file_exists(contrib_path: str, name: str) -> bool:
     """
     return os.path.exists(os.path.join(contrib_path, f"test_{name}.py"))
 
+
 def create_test_file(contrib_path: str, name: str) -> None:
-    """Create the test file for the contribution."""
+    """
+    Create the test file for the contribution.
+
+    Args:
+        contrib_path (str): The path to the contribution directory where the test file will be created.
+        name (str): The name of the contribution, used to generate the test file name.
+    """
     test_path = os.path.join(contrib_path, 'tests', f"test_{name}.py")
+    # Content to be inserted into the file
+    content = f'''"""Unit tests for contribution {name}"""
+
+from {name} import hello_world
+
+def test_hello_world():
+    assert hello_world() == "Hello, World!"
+'''
+
     with open(test_path, 'w', encoding='utf-8') as test_file:
-        test_file.write(f"\"\"\"tests for contribution {name}\"\"\"\n")
+        test_file.write(content)
     print(f"Created {test_path}")
 
+
+def conftest_file_exists(contrib_path: str) -> bool:
+    """
+    Check if a test file with a specific name exists in the given directory.
+
+    Args:
+        contrib_path (str): The path to the directory where the test file is expected to be located.
+        name (str): The base name of the test file (without the "test_" prefix and ".py" extension).
+
+    Returns:
+        bool: True if the test file exists, False otherwise.
+    """
+    return os.path.exists(os.path.join(contrib_path, 'conftest.py'))
+
+
+def create_conftest_file(contrib_path: str) -> None:
+    """
+    Creates a `conftest.py` file with the necessary configuration for pytest.
+
+    This function writes a `conftest.py` file that ensures the root directory of the project is added
+    to the PYTHONPATH, allowing the test suite to import modules from the `scripts` package.
+
+    Args:
+        contrib_path (str): The path to the contribution directory where the `tests/conftest.py` file will be created.
+        name (str): The name of the contribution, used for potential customization in the `conftest.py` file.
+    """
+
+    # Path to the conftest.py file to be created
+    conftest_path = os.path.join(contrib_path, 'tests', 'conftest.py')
+
+    # Content to be inserted into the file
+    content = '''"""
+Pytest configuration file for the test suite.
+
+This file ensures that the root directory of the project is added to the
+PYTHONPATH, allowing the test suite to import modules from the `scripts` package.
+"""
+
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+'''
+
+    # Open the file in write mode (it will be created if it doesn't exist)
+    with open(conftest_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"Created {conftest_path}")
 
 
 def pyproject_file_exists(contrib_path: str) -> bool:
@@ -222,6 +298,7 @@ def pyproject_file_exists(contrib_path: str) -> bool:
         bool: True if the 'pyproject.toml' file exists in the specified directory, False otherwise.
     """
     return os.path.exists(os.path.join(contrib_path, 'pyproject.toml'))
+
 
 def write_pyproject_file(
     contrib_path: str,

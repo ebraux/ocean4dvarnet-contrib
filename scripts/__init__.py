@@ -8,7 +8,6 @@ This module contains scripts for:
 - Creating README files for contributions (`create_readme.py`)
 - Creating metadata files for contributions (`create_metadatas.py`)
 """
-# test 99
 
 from .utils import (
     list_subdirs,

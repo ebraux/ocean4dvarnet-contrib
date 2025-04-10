@@ -12,6 +12,7 @@ from .utils import (
     create_main_py,
     create_tests_directory,
     create_test_file,
+    create_conftest_file,
 )
 
 
@@ -63,6 +64,9 @@ def create_contribution(name):
 
     # Create tests folder
     create_tests_directory(contrib_path=contrib_path)
+
+    # Create tests environment config
+    create_conftest_file(contrib_path=contrib_path)
 
     # Create tests/tests_CONTRIB_NAME.py
     create_test_file(contrib_path=contrib_path, name=name)

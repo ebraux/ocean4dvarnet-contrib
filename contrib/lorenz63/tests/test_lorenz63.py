@@ -1,6 +1,5 @@
-"""tests for contribution lorenz63"""
+"""Unit tests for contribution lorenz63"""
 
-#from contrib.lorenz63.lorenz63 import hello_world
 from lorenz63 import hello_world
 
 def test_hello_world():

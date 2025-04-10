@@ -31,6 +31,9 @@ from .utils import (
     create_tests_directory,
     test_file_exists,
     create_test_file,
+    conftest_file_exists,
+    create_conftest_file,
+
 )
 
 
@@ -65,32 +68,26 @@ def create_files_for_contribs() -> None:
     for subdir in list_subdirs(CONTRIB_DIR):
         path = os.path.join(CONTRIB_DIR, subdir)
 
-        if not pyproject_file_exists(contrib_path=path):
-            write_pyproject_file(contrib_path=path, name=subdir)
-        else:
-            print(f" pyproject.toml already exists in {path}/{subdir}")
-
-        if not readme_exists(contrib_path=path):
-            create_readme(contrib_path=path, name=subdir)
-        else:
-            print(f" README.md already exists in {path}/{subdir}")
-
-        if not init_py_exists(contrib_path=path):
-            create_init_py(contrib_path=path, name=subdir)
-        else:
-            print(f" __init__.py already exists in {path}/{subdir}")
-
-        if not main_py_exists(contrib_path=path, name=subdir):
-            create_main_py(contrib_path=path, name=subdir)
-        else:
-            print(f" {subdir}.py already exists in {path}/{subdir}")
-
+        # Create the tests directory if it doesn't exist
         create_tests_directory(contrib_path=path)
 
-        if not test_file_exists(contrib_path=path, name=subdir):
-            create_test_file(contrib_path=path, name=subdir)
-        else:
-            print(f" test_{subdir}.py already exists in {path}/{subdir}/test")
+        # Define file-checking tasks and their corresponding creation functions
+        tasks = [
+            (pyproject_file_exists, write_pyproject_file, "pyproject.toml", {'contrib_path': path}),
+            (readme_exists, create_readme, "README.md", {'contrib_path': path}),
+            (init_py_exists, create_init_py, "__init__.py", {'contrib_path': path}),
+            (main_py_exists, create_main_py, f"{subdir}.py", {'contrib_path': path, 'name': subdir}),
+            (test_file_exists, create_test_file, f"test_{subdir}.py", {'contrib_path': path, 'name': subdir}),
+            (conftest_file_exists, create_conftest_file, "conftest.py", {'contrib_path': path}),
+        ]
+
+        # Perform tasks for each file
+        for check_func, create_func, file_name, params in tasks:
+            if not check_func(**params):
+                create_func(**params)
+            else:
+                print(f" {file_name} already exists in {path}/{subdir}")
+
 
 if __name__ == "__main__":
     create_files_for_contribs()
