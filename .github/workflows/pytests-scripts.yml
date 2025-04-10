@@ -1,13 +1,14 @@
 ---
 name: CI for pytest scripts
     
-    on:
-      push:
-        paths:
-          - 'tests/**'
-    
-    jobs:
-check-scripts:
+on:
+  push:
+    paths:
+      - 'tests/**'
+
+jobs:
+  
+  check-pytest-scripts:
     runs-on: ubuntu-latest
 
     steps:
