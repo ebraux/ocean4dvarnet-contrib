@@ -217,9 +217,12 @@ jobs:
           mkdir -p /tmp/temp_download_folder
           gh run download --name "generated-contrib-files-$project" --dir /tmp/temp_download_folder
 
+          sudo apt install -y tree
+          tree /tmp/temp_download_folder
+
           # Step 2 : check il files were donwloaded
           if [ "$(ls -A /tmp/temp_download_folder)" ]; then
-            mv /tmp/temp_download_folder/* docs/contrib/$project/
+            rsync -av /tmp/temp_download_folder/ docs/contrib/$project/
             echo "Files moved to  docs/contrib/$project/"
           else
             echo "No artifact found for $project"
