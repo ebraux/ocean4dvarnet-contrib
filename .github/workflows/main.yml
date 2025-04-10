@@ -263,9 +263,9 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update generated files by CI"
-          file_pattern: |
-            docs/contrib/**
-            docs/scripts/**
+          # file_pattern: |
+          #   docs/contrib/**
+          #   docs/scripts/**
           push: true
 
   update-mkdocs:
