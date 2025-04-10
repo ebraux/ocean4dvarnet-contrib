@@ -249,10 +249,10 @@ jobs:
           echo "Generating documentation for contrib"
           python3 -m scripts.manage_contrib_list
 
-      # - name: debug
-      #   run: |
-      #      sudo apt install -y tree
-      #      tree .
+      - name: debug
+        run: |
+           sudo apt install -y tree
+           tree .
       #      # tree docs/contrib
       #      # tree docs/scripts
       #      # tree generated-files-*
