@@ -11,5 +11,6 @@
 | dependencies | [] |
 
 ----------------------------------------
-- [models](./models.md)
+- [lorenz63](./lorenz63.md)
 - [data](./data.md)
+- [models](./models.md)
