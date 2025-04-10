@@ -253,6 +253,7 @@ jobs:
         run: |
            sudo apt install -y tree
            tree .
+           git status
       #      # tree docs/contrib
       #      # tree docs/scripts
       #      # tree generated-files-*
@@ -265,6 +266,7 @@ jobs:
           file_pattern: |
             docs/contrib/**
             docs/scripts/**
+          push: true
 
   update-mkdocs:
     needs: merge-docs-and-update-repo
