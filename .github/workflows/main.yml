@@ -217,9 +217,6 @@ jobs:
           mkdir -p /tmp/temp_download_folder
           gh run download --name "generated-contrib-files-$project" --dir /tmp/temp_download_folder
 
-          sudo apt install -y tree
-          tree /tmp/temp_download_folder
-
           # Step 2 : check il files were donwloaded
           if [ "$(ls -A /tmp/temp_download_folder)" ]; then
             rsync -av /tmp/temp_download_folder/ docs/contrib/$project/
@@ -249,29 +246,18 @@ jobs:
           echo "Generating documentation for contrib"
           python3 -m scripts.manage_contrib_list
 
-
       - name: Add files to git index
         run: |
           git add docs/contrib/**
           git add docs/scripts/**
 
-      - name: debug
-        run: |
-           sudo apt install -y tree
-           tree .
-           git status
-      #      # tree docs/contrib
-      #      # tree docs/scripts
-      #      # tree generated-files-*
-      #      # tree generated-files-scripts
-
       - name: Commit and push generated files
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: "Update generated files by CI"
-          # file_pattern: |
-          #   docs/contrib/**
-          #   docs/scripts/**
+          file_pattern: |
+            docs/contrib/**
+            docs/scripts/**
           push: true
 
   update-mkdocs:
